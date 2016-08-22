@@ -1,0 +1,69 @@
+//
+//  BusRoute.swift
+//  alertLT
+//
+//  Created by Ryan Zegray on 2016-08-22.
+//  Copyright © 2016 Ryan Zegray. All rights reserved.
+//
+
+import Foundation
+import CoreData
+
+
+class BusRoute: NSManagedObject {
+    
+    //Manually Added Core Data accessor methods which cannot be automatically generated in swift
+    @NSManaged func addStopsObject(value: BusStop)
+    @NSManaged func removeStopsObject(value: BusStop)
+    @NSManaged func addStops(value: Set<BusStop>)
+    @NSManaged func removeStops(value: Set<BusStop>)
+    
+    static let directionAsString = [
+        WebWatchDirection.Northbound : "Northbound",
+        WebWatchDirection.Southbound : "Southbound",
+        WebWatchDirection.Eastbound : "Eastbound",
+        WebWatchDirection.Westbound : "Westbound"
+    ]
+    
+    /// Takes a route that has been found on the WebWatch Website and adds it to the database
+    class func addRouteToDatabase(foundRoute: WebWatchRoute, withDirection foundDirection: WebWatchDirection, withStops foundStops: [WebWatchStop], inManagedObjectContext context: NSManagedObjectContext) -> BusRoute? {
+        
+        //Fetch Request to see if the route with a specific direction already exists in the database
+        let existingRouteRequest = NSFetchRequest(entityName: "BusRoute")
+        existingRouteRequest.predicate = NSPredicate(format: "number = %@ && direction = %@", NSNumber(integer: foundRoute.number), directionAsString[foundDirection]!)
+        
+        //if the route in that direction already exists in the database make sure that none of the stops have changed
+        if let existingRoute = (try? context.executeFetchRequest(existingRouteRequest))?.first as? BusRoute {
+            updateStopsInRoute(existingRoute, withFoundStops: foundStops)
+            return existingRoute
+            
+        //Otherwise we need add the route into the database
+        } else if let newRoute = NSEntityDescription.insertNewObjectForEntityForName("BusRoute", inManagedObjectContext: context) as? BusRoute {
+            
+            newRoute.name = foundRoute.name
+            newRoute.number = foundRoute.number
+            newRoute.direction = directionAsString[foundDirection]!
+            newRoute.lastUpdated = NSDate()
+            
+            for stop in foundStops {
+                if let databaseStop = BusStop.addStopToDatabase(stop, inManagedObjectContex: context) {
+                    newRoute.addStopsObject(databaseStop)
+                }
+            }
+            
+            return newRoute
+        }
+        
+        return nil
+    }
+    
+    
+    // TODO: check existing stops and see if there are any changes
+    
+    /// Takes an already existing BusRoute in the database and updates it with any changes its stops
+    private class func updateStopsInRoute(route: BusRoute, withFoundStops foundStops:  [WebWatchStop]) {
+        if let currentStops = route.stops?.allObjects as? [BusStop] {
+            
+        }
+    }
+}
