@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9464B31E1D6CA70A00B079BF /* BusRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3181D6CA70A00B079BF /* BusRoute.swift */; };
+		9464B31F1D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3191D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift */; };
+		9464B3201D6CA70A00B079BF /* BusStop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31A1D6CA70A00B079BF /* BusStop.swift */; };
+		9464B3211D6CA70A00B079BF /* BusStop+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31B1D6CA70A00B079BF /* BusStop+CoreDataProperties.swift */; };
+		9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */; };
+		9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31D1D6CA70A00B079BF /* WebWatch.swift */; };
 		9496C6AA1D6B8303008DD709 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9496C6A91D6B8303008DD709 /* AppDelegate.swift */; };
 		9496C6AF1D6B8303008DD709 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9496C6AD1D6B8303008DD709 /* Main.storyboard */; };
 		9496C6B21D6B8303008DD709 /* alertLT.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9496C6B01D6B8303008DD709 /* alertLT.xcdatamodeld */; };
@@ -15,6 +21,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9464B3181D6CA70A00B079BF /* BusRoute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BusRoute.swift; sourceTree = "<group>"; };
+		9464B3191D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BusRoute+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		9464B31A1D6CA70A00B079BF /* BusStop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BusStop.swift; sourceTree = "<group>"; };
+		9464B31B1D6CA70A00B079BF /* BusStop+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BusStop+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesTableViewController.swift; sourceTree = "<group>"; };
+		9464B31D1D6CA70A00B079BF /* WebWatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebWatch.swift; sourceTree = "<group>"; };
 		9496C6A61D6B8303008DD709 /* alertLT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = alertLT.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9496C6A91D6B8303008DD709 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9496C6AE1D6B8303008DD709 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -54,8 +66,10 @@
 		9496C6A81D6B8303008DD709 /* alertLT */ = {
 			isa = PBXGroup;
 			children = (
-				9496C6A91D6B8303008DD709 /* AppDelegate.swift */,
 				9496C6AD1D6B8303008DD709 /* Main.storyboard */,
+				9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */,
+				9464B31D1D6CA70A00B079BF /* WebWatch.swift */,
+				9496C6A91D6B8303008DD709 /* AppDelegate.swift */,
 				9496C6BF1D6B862A008DD709 /* Supporting Files */,
 				9496C6BE1D6B85A5008DD709 /* Core Data */,
 			);
@@ -65,6 +79,10 @@
 		9496C6BE1D6B85A5008DD709 /* Core Data */ = {
 			isa = PBXGroup;
 			children = (
+				9464B3181D6CA70A00B079BF /* BusRoute.swift */,
+				9464B3191D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift */,
+				9464B31A1D6CA70A00B079BF /* BusStop.swift */,
+				9464B31B1D6CA70A00B079BF /* BusStop+CoreDataProperties.swift */,
 				9496C6B01D6B8303008DD709 /* alertLT.xcdatamodeld */,
 			);
 			name = "Core Data";
@@ -151,7 +169,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9464B3201D6CA70A00B079BF /* BusStop.swift in Sources */,
+				9464B31F1D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift in Sources */,
+				9464B3211D6CA70A00B079BF /* BusStop+CoreDataProperties.swift in Sources */,
+				9464B31E1D6CA70A00B079BF /* BusRoute.swift in Sources */,
 				9496C6AA1D6B8303008DD709 /* AppDelegate.swift in Sources */,
+				9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */,
+				9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */,
 				9496C6B21D6B8303008DD709 /* alertLT.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -304,6 +328,7 @@
 				9496C6BD1D6B8303008DD709 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
