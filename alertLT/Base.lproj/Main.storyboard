@@ -22,10 +22,10 @@
             </objects>
             <point key="canvasLocation" x="-236" y="577"/>
         </scene>
-        <!--Table View Controller-->
+        <!--Favorites-->
         <scene sceneID="yuX-QL-KYn">
             <objects>
-                <tableViewController id="4R6-eb-O2g" sceneMemberID="viewController">
+                <tableViewController id="4R6-eb-O2g" customClass="FavoritesTableViewController" customModule="alertLT" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="5hp-HL-T0x">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -45,7 +45,7 @@
                             <outlet property="delegate" destination="4R6-eb-O2g" id="wbV-7q-YNq"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="37Z-Gi-OlN"/>
+                    <navigationItem key="navigationItem" title="Favorites" id="37Z-Gi-OlN"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="y2c-Pd-nGv" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
