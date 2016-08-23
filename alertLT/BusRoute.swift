@@ -34,11 +34,12 @@ class BusRoute: NSManagedObject {
         
         //if the route in that direction already exists in the database make sure that none of the stops have changed
         if let existingRoute = (try? context.executeFetchRequest(existingRouteRequest))?.first as? BusRoute {
-            updateStopsInRoute(existingRoute, withFoundStops: foundStops)
+            updateStopsInRoute(existingRoute, withFoundStops: foundStops, context:  context)
             return existingRoute
+        }
             
         //Otherwise we need add the route into the database
-        } else if let newRoute = NSEntityDescription.insertNewObjectForEntityForName("BusRoute", inManagedObjectContext: context) as? BusRoute {
+        else if let newRoute = NSEntityDescription.insertNewObjectForEntityForName("BusRoute", inManagedObjectContext: context) as? BusRoute {
             
             newRoute.name = foundRoute.name
             newRoute.number = foundRoute.number
@@ -58,12 +59,50 @@ class BusRoute: NSManagedObject {
     }
     
     
-    // TODO: check existing stops and see if there are any changes
+    // FIXME: Try to find a more efficent way of checking for already existing stops
     
     /// Takes an already existing BusRoute in the database and updates it with any changes its stops
-    private class func updateStopsInRoute(route: BusRoute, withFoundStops foundStops:  [WebWatchStop]) {
-        if let currentStops = route.stops?.allObjects as? [BusStop] {
+    private class func updateStopsInRoute(route: BusRoute, withFoundStops foundStops:  [WebWatchStop], context: NSManagedObjectContext) {
+        
+        guard let existingStops = route.stops as? Set<BusStop> else {
+            return
+        }
+        
+        //Check to see if any stops have been removed
+        for existingStop in existingStops {
             
+            var alreadyExistingStopStillExists = false
+            
+            for foundStop in foundStops {
+                if existingStop.number == foundStop.number {
+                    alreadyExistingStopStillExists = true
+                }
+            }
+            
+            if !alreadyExistingStopStillExists {
+                
+                route.removeStopsObject(existingStop)
+                
+                if route.stops?.count == 0 {
+                    context.deleteObject(route)
+                }
+            }
+        }
+        
+        //Check to see if any stops need to be added
+        for foundStop in foundStops {
+            var doesNotExistInExistingStops = true
+            for existingStop in existingStops {
+                if existingStop.number == foundStop.number {
+                    doesNotExistInExistingStops = false
+                }
+            }
+            
+            if doesNotExistInExistingStops {
+                if let databaseStop = BusStop.addStopToDatabase(foundStop, inManagedObjectContex: context) {
+                    route.addStopsObject(databaseStop)
+                }
+            }
         }
     }
 }
