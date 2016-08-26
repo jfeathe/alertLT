@@ -16,7 +16,7 @@ class SelectRouteTableViewController: UITableViewController {
     }
     
     //Outlets and UIElements
-    @IBOutlet weak var cancelBarButton: UIBarButtonItem!
+    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
     private var loadingDataSpinner = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
     private var loadingDataLable:  UILabel = {
         let label = UILabel()

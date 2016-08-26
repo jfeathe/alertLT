@@ -12,6 +12,10 @@ import CoreData
 
 class FavoritesTableViewController: UITableViewController {
     
+    enum Constants {
+        static let SelectRouteSegue = "SelectRouteSegue"
+    }
+    
     // MARK: Model
     
     var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
@@ -20,16 +24,8 @@ class FavoritesTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let addFavoriteButtonItem = UIBarButtonItem(title: "＋", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(addFavoritesButtonPressed))
-        addFavoriteButtonItem.setTitleTextAttributes([ NSFontAttributeName: UIFont.systemFontOfSize(23)], forState: .Normal)
-        self.navigationItem.rightBarButtonItems = [self.editButtonItem(), addFavoriteButtonItem]
-        
-        
-    }
-    
-    func addFavoritesButtonPressed() {
-        performSegueWithIdentifier("SelectRouteSegue", sender: self)
+        self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        editButtonItem().tintColor = UIColor.whiteColor()
     }
 
     override func didReceiveMemoryWarning() {
@@ -67,7 +63,7 @@ class FavoritesTableViewController: UITableViewController {
     }
     */
 
-    /*
+    
     // Override to support editing the table view.
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
@@ -77,7 +73,7 @@ class FavoritesTableViewController: UITableViewController {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
-    */
+    
 
     /*
     // Override to support rearranging the table view.
@@ -102,12 +98,15 @@ class FavoritesTableViewController: UITableViewController {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
         
-        if segue.identifier == "SelectRouteSegue" {
+        if segue.identifier == Constants.SelectRouteSegue {
             if let selectRouteTVC = segue.destinationViewController.contentViewController as? SelectRouteTableViewController {
                 selectRouteTVC.managedObjectContex = managedObjectContex
                 selectRouteTVC.title = "Select a Route"
             }
         }
+    }
+    
+    @IBAction func cancelAddingFavoriteStop(segue:UIStoryboardSegue) {
     }
 }
 
