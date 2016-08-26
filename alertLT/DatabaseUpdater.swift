@@ -11,130 +11,124 @@ import CoreData
 
 class DatabaseUpdater {
     
+    var managedObjectContex: NSManagedObjectContext?
     private let defaults = NSUserDefaults.standardUserDefaults()
     
-    private let scrapper = WebWatchScrapper()
+    let stringToWebWatchDirection = [
+        "Northbound" : WebWatchDirection.Northbound,
+        "Southbound" : WebWatchDirection.Southbound,
+        "Eastbound" : WebWatchDirection.Eastbound,
+        "Westbound" : WebWatchDirection.Westbound
+    ]
     
-    private var managedObjectContex: NSManagedObjectContext?
-    
-    init(contex: NSManagedObjectContext?) {
-        managedObjectContex = contex
+    init(context: NSManagedObjectContext?) {
+        self.managedObjectContex = context
     }
     
-    func updateDatabase() throws {
-        if entireDatabaseUpdateRequired() {
-            print("DB Updated Required")
-            //updateEntireDatabaseFromWebWatch()
-            print("Updated DB")
-        } else if let arrayOfRoutesToUpdate = updateSpecificRoutesOnlyRequied() {
-            print("Partial DB Update Required")
-            print(arrayOfRoutesToUpdate.count)
-            for routeToUpdate in arrayOfRoutesToUpdate {
-                print(routeToUpdate.name! + " " + String(routeToUpdate.number!))
-            }
-        }
+    private enum Constants {
+        static let dateLastUpdatedKey = "DateLastUpdated"
     }
     
-    private func entireDatabaseUpdateRequired() -> Bool  {
-        
-        if let lastUpdatedDate = (defaults.objectForKey(DatabaseConstants.dateLastUpdatedKey) as? NSDate) {
+    // TODO: Remove debugging print
+    func databaseShouldBeUpdated() -> Bool {
+        return lastDatabaseUpdateWasMoreThan(14, timeUnit: .Day)
+    }
+    
+    func missingRoutesShouldBeUpdated() -> Bool {
+        return lastDatabaseUpdateWasMoreThan(4, timeUnit: .Hour)
+    }
+    
+    ///Returns if the last database update is older then the given number of time units ago
+    func lastDatabaseUpdateWasMoreThan(value: Int, timeUnit: NSCalendarUnit) -> Bool {
+        if let lastUpdatedDate = (defaults.objectForKey(Constants.dateLastUpdatedKey) as? NSDate) {
             
             let calander = NSCalendar.currentCalendar()
             
-            guard let twoWeeksAgo = calander.dateByAddingUnit(.Day, value: -14, toDate: NSDate(), options: []) else {
+            guard let timeToCompareAgainst = calander.dateByAddingUnit(timeUnit, value: -value, toDate: NSDate(), options: []) else {
                 return true
             }
-            
-            if lastUpdatedDate == lastUpdatedDate.earlierDate(twoWeeksAgo) {
+            if lastUpdatedDate == lastUpdatedDate.earlierDate(timeToCompareAgainst) {
                 return true
             } else {
                 return false
             }
-            
         } else {
             return true
         }
     }
     
-    private func updateSpecificRoutesOnlyRequied() -> [BusRoute]? {
-        //Use predicate to find routes that have not gotten stop data yet
-        let noStopsDataPredicate = NSPredicate(format: "hasStopsData == NO")
+    func routesMissingInfo() -> [BusRoute]? {
+        var routesMissingInfo: [BusRoute]?
         
-        let request = NSFetchRequest(entityName: "BusRoute")
-        request.predicate = noStopsDataPredicate
+        managedObjectContex?.performBlockAndWait {
+            [weak weakSelf = self] in
+            let routesWithoutStopsRequest = NSFetchRequest(entityName: BusRoute.entityName)
+            routesWithoutStopsRequest.predicate = NSPredicate(format: "hasStopsData == NO")
+            routesWithoutStopsRequest.sortDescriptors =  [NSSortDescriptor(key: "name", ascending: true)]
+            
+            let result =  try? weakSelf?.managedObjectContex!.executeFetchRequest(routesWithoutStopsRequest)
+            if let routes = result as? [BusRoute] {
+                routesMissingInfo = routes
+            }
+        }
+        return routesMissingInfo
+    }
+    
+    func updateDatabase() throws {
+        print("Updating Database")
+        let routes = try WebWatchScrapper.fetchListOfRoutes()
+        for route in routes {
+            let directions = try WebWatchScrapper.fetchDirectionsForRoute(route)
+            
+            let firstDirectionStops = try WebWatchScrapper.fetchListOfStopsForRoute(route, forDirection: directions.firstDirection)
+            
+            let secondDirectionStops = try WebWatchScrapper.fetchListOfStopsForRoute(route, forDirection: directions.secondDirection)
+            
+            managedObjectContex?.performBlockAndWait { [weak weakSelf = self] in
+                BusRoute.addRouteToDatabase(route, withDirection: directions.firstDirection, withStops: firstDirectionStops, inManagedObjectContext: weakSelf!.managedObjectContex!)
+                
+                BusRoute.addRouteToDatabase(route, withDirection: directions.secondDirection, withStops: secondDirectionStops, inManagedObjectContext: weakSelf!.managedObjectContex!)
+                _ = try? weakSelf?.managedObjectContex?.save()
+            }
+        }
+        defaults.setObject(NSDate(), forKey: Constants.dateLastUpdatedKey)
+    }
+    
+    func updateRoutes(routes: [BusRoute]) throws {
+        for route in routes {
+            if let name = route.name, number = route.number, directionString = route.direction {
+                
+                let wwRoute = WebWatchRoute(name: name, number: Int(number))
+                if let wwDirection = stringToWebWatchDirection[directionString] {
+                    let wwStops = try WebWatchScrapper.fetchListOfStopsForRoute(wwRoute, forDirection: wwDirection)
         
-        return  (try? managedObjectContex!.executeFetchRequest(request)) as? [BusRoute]
+                    managedObjectContex?.performBlockAndWait { [weak weakSelf = self] in
+                        BusRoute.addRouteToDatabase(wwRoute, withDirection: wwDirection, withStops: wwStops, inManagedObjectContext: weakSelf!.managedObjectContex!)
+                    }
+                }
+            }
+        }
+        defaults.setObject(NSDate(), forKey: Constants.dateLastUpdatedKey)
     }
-    
-    private func updateEntireDatabaseFromWebWatch() throws {
-        defaults.setObject(NSDate(), forKey: DatabaseConstants.dateLastUpdatedKey)
-        
-//        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
-//            
-//        }
-    }
-    
-    private func updateSpecifcRoutesFromWebWatch(routesToUpdate: [BusRoute]) {
-        //then update them with webwatch data
-    }
-    
-    
-    private enum DatabaseConstants {
-        static let dateLastUpdatedKey = "Date Database Last Updated"
-    }
-    
-    
-    private func printDatabaseContents() {
+
+    func printDatabaseContents() {
         managedObjectContex?.performBlock {
-            if let results = try? self.managedObjectContex!.executeFetchRequest(NSFetchRequest(entityName: "BusRoute")) {
+            if let results = try? self.managedObjectContex!.executeFetchRequest(NSFetchRequest(entityName: BusRoute.entityName)) {
                 for result in results {
                     if let route = result as? BusRoute {
                         print(route.name! + " - "+route.direction!)
-                        
                         if let stops = route.stops?.allObjects as? [BusStop] {
                             for stop in stops {
                                 print(stop.actualName!)
                             }
                         }
-                        print("------------------")
+                        print("-----------------------------")
                     }
                 }
             }
         }
     }
 }
-
-//let scrapper = WebWatchScrapper()
-//
-//
-//do {
-//    let routes = try scrapper.fetchListOfRoutes()
-//    
-//    for route in routes {
-//        let (firstDirection, secondDirection) = try scrapper.fetchDirectionsForRoute(route)
-//        
-//        if let firstDirectionStops = try scrapper.fetchListOfStopsForRoute(route, forDirection: firstDirection),
-//            let secondDirectionStops = try scrapper.fetchListOfStopsForRoute(route, forDirection: secondDirection) {
-//            
-//            managedObjectContex?.performBlock {
-//                BusRoute.addRouteToDatabase(route, withDirection: firstDirection, withStops: firstDirectionStops, inManagedObjectContext: self.managedObjectContex!)
-//                BusRoute.addRouteToDatabase(route, withDirection: secondDirection, withStops: secondDirectionStops, inManagedObjectContext: self.managedObjectContex!)
-//            }
-//        }
-//        
-//    }
-//    
-//} catch WebWatchError.InvalidURL {
-//    //TODO: Handel Errors
-//} catch WebWatchError.CannotGetContentsOfURL {
-//    
-//} catch {
-//    
-//}
-//
-//
-
-
 
 
 

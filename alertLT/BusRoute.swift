@@ -63,7 +63,6 @@ class BusRoute: NSManagedObject {
             
             return newRoute
         }
-        
         return nil
     }
     
@@ -97,7 +96,6 @@ class BusRoute: NSManagedObject {
                 }
             }
         }
-        
         //Check to see if any stops need to be added
         for foundStop in foundStops {
             var doesNotExistInExistingStops = true

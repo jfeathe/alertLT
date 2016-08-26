@@ -10,8 +10,12 @@ import Foundation
 
 class WebWatchScrapper {
     
+    private struct WebWatchConstants {
+        static let queryPrefix: String = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?"
+    }
+    
     /// Returns a list of all avaliable LTC routes from the webwatch website.
-    func fetchListOfRoutes() throws -> [WebWatchRoute] {
+    static func fetchListOfRoutes() throws -> [WebWatchRoute] {
         
         guard let routesURL = NSURL(string: WebWatchConstants.queryPrefix) else {
             throw WebWatchError.InvalidURL
@@ -26,9 +30,8 @@ class WebWatchScrapper {
         
     }
     
-    
     /// Parses the "Choose a route" WebWatch page and returns an array of all routes.
-    private func scrapeRoutesFromWebWatchPage(htmlPage: String) -> [WebWatchRoute] {
+    private static func scrapeRoutesFromWebWatchPage(htmlPage: String) -> [WebWatchRoute] {
         
         var routes = [WebWatchRoute]()
         
@@ -61,7 +64,7 @@ class WebWatchScrapper {
     }
     
     /// Returns a tuple with both directions that a LTC route travels which is retrived from the webwatch website.
-    func fetchDirectionsForRoute(route: WebWatchRoute) throws -> (firstDirection: WebWatchDirection, secondDirection: WebWatchDirection) {
+    static func fetchDirectionsForRoute(route: WebWatchRoute) throws -> (firstDirection: WebWatchDirection, secondDirection: WebWatchDirection) {
         
         let directionsURLString = WebWatchConstants.queryPrefix + "r=" + String(route.number)
         
@@ -79,7 +82,7 @@ class WebWatchScrapper {
     }
     
     /// Parses the "Choose a direction" page and returns a tuple with both directions the bus can return.
-    private func scrapeDirectionsFromWebWatchPage(htmlPage: String) throws -> (firstDirection: WebWatchDirection, secondDirection: WebWatchDirection) {
+    private static func scrapeDirectionsFromWebWatchPage(htmlPage: String) throws -> (firstDirection: WebWatchDirection, secondDirection: WebWatchDirection) {
         if htmlPage.containsString("NORTHBOUND") {
             //If the HTML page contains "NORTHNBOUND" then the route MUST be a North/South bus route
             return (WebWatchDirection.Northbound, WebWatchDirection.Southbound)
@@ -93,7 +96,7 @@ class WebWatchScrapper {
     
     /// Returns a Array of webwatch stops for the given route from the webwatch website.
     /// If the array is returned as nil it means that the route is not in service and we cannot get a list of stops.
-    func fetchListOfStopsForRoute(route: WebWatchRoute, forDirection direction: WebWatchDirection) throws -> [WebWatchStop]? {
+    static func fetchListOfStopsForRoute(route: WebWatchRoute, forDirection direction: WebWatchDirection) throws -> [WebWatchStop]? {
         
         let stopsURLString = WebWatchConstants.queryPrefix + "r=" + String(route.number) + "&d=" + String(direction.rawValue)
         
@@ -111,7 +114,7 @@ class WebWatchScrapper {
     
     /// Parses the "Choose your stop" page and returns an array of all stops for a route and direction.
     /// If the array is returned as nil it means that the route is not in service and we cannot get a list of stops.
-    private func scrapeStopsFromWebWatchPage(htmlPage: String, forRoute route: WebWatchRoute, forDirection direction: WebWatchDirection) -> [WebWatchStop]? {
+    private static func scrapeStopsFromWebWatchPage(htmlPage: String, forRoute route: WebWatchRoute, forDirection direction: WebWatchDirection) -> [WebWatchStop]? {
         
         var stops = [WebWatchStop]()
         
@@ -147,10 +150,6 @@ class WebWatchScrapper {
         }
         
         return stops.count > 0 ? stops : nil
-    }
-    
-    private struct WebWatchConstants {
-        static let queryPrefix: String = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?"
     }
 }
 
