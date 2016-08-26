@@ -9,70 +9,27 @@
 import UIKit
 import CoreData
 
+
 class FavoritesTableViewController: UITableViewController {
     
     // MARK: Model
     
     var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
     
-    var busRoutes = [
-        WebWatchRoute(name: "Wellington Road", number: 13),
-        WebWatchRoute(name: "Sarnia", number: 6),
-        WebWatchRoute(name: "London Road", number: 9)
-
-    ]
-    var exampleDirection = WebWatchDirection.Northbound
-    var busStops = [
-        13: [ WebWatchStop(name: "Stop 12" ,number: 12), WebWatchStop(name: "Stop 8" ,number: 8), WebWatchStop(name: "Stop 19" ,number: 19)],
-        6: [],
-        9: [ WebWatchStop(name: "Stop 8" ,number: 8),  WebWatchStop(name: "Stop 99" ,number: 99) ]
-    ]
-    
-    func updateDatabase() {
-        managedObjectContex?.performBlock {
-
-            for routeToAdd in self.busRoutes {
-                _ = BusRoute.addRouteToDatabase(routeToAdd, withDirection: self.exampleDirection, withStops: self.busStops[routeToAdd.number]!, inManagedObjectContext: self.managedObjectContex!)
-            }
-            do {
-                try self.managedObjectContex?.save()
-            } catch let error {
-                // TODO: Handel Possible saving error
-                print("Core Data Error: \(error)")
-            }
-            
-        }
-    }
-    
-    private func printDatabaseStatistics() {
-        managedObjectContex?.performBlock {
-            if let results = try? self.managedObjectContex!.executeFetchRequest(NSFetchRequest(entityName: "BusRoute")) {
-                for result in results {
-                    if let route = result as? BusRoute {
-                        print(route.name! + " - "+route.direction!)
-                        for stop in route.stops?.allObjects as! [BusStop] {
-                            print(stop.actualName!)
-                        }
-                        print("------------------")
-                    }
-                }
-            }
-        }
-    }
-    
     // MARK: View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
         
-        updateDatabase()
-        printDatabaseStatistics()
+        let addFavoriteButtonItem = UIBarButtonItem(title: "＋", style: UIBarButtonItemStyle.Plain, target: self, action: #selector(addFavoritesButtonPressed))
+        addFavoriteButtonItem.setTitleTextAttributes([ NSFontAttributeName: UIFont.systemFontOfSize(23)], forState: .Normal)
+        self.navigationItem.rightBarButtonItems = [self.editButtonItem(), addFavoriteButtonItem]
+        
+        
+    }
+    
+    func addFavoritesButtonPressed() {
+        performSegueWithIdentifier("SelectRouteSegue", sender: self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -137,14 +94,31 @@ class FavoritesTableViewController: UITableViewController {
     }
     */
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        
+        if segue.identifier == "SelectRouteSegue" {
+            if let selectRouteTVC = segue.destinationViewController.contentViewController as? SelectRouteTableViewController {
+                selectRouteTVC.managedObjectContex = managedObjectContex
+                selectRouteTVC.title = "Select a Route"
+            }
+        }
     }
-    */
+}
 
+extension UIViewController {
+    var contentViewController: UIViewController {
+        //if what we are seguing to is actually a navigation controller get the "content" / visable view controller
+        if let navCon = self as? UINavigationController {
+            return navCon.visibleViewController ?? self
+            //otherwise just return self since we are the contnet
+        } else {
+            return self
+        }
+    }
 }

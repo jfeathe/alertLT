@@ -25,8 +25,10 @@ class BusRoute: NSManagedObject {
         WebWatchDirection.Westbound : "Westbound"
     ]
     
+    static let entityName = "BusRoute"
+    
     /// Takes a route that has been found on the WebWatch Website and adds it to the database
-    class func addRouteToDatabase(foundRoute: WebWatchRoute, withDirection foundDirection: WebWatchDirection, withStops foundStops: [WebWatchStop], inManagedObjectContext context: NSManagedObjectContext) -> BusRoute? {
+    class func addRouteToDatabase(foundRoute: WebWatchRoute, withDirection foundDirection: WebWatchDirection, withStops foundStops: [WebWatchStop]?, inManagedObjectContext context: NSManagedObjectContext) -> BusRoute? {
         
         //Fetch Request to see if the route with a specific direction already exists in the database
         let existingRouteRequest = NSFetchRequest(entityName: "BusRoute")
@@ -34,22 +36,29 @@ class BusRoute: NSManagedObject {
         
         //if the route in that direction already exists in the database make sure that none of the stops have changed
         if let existingRoute = (try? context.executeFetchRequest(existingRouteRequest))?.first as? BusRoute {
-            updateStopsInRoute(existingRoute, withFoundStops: foundStops, context:  context)
+            
+            if let stops = foundStops {
+                updateStopsInRoute(existingRoute, withFoundStops: stops, context:  context)
+            }
+            
             return existingRoute
         }
             
         //Otherwise we need add the route into the database
         else if let newRoute = NSEntityDescription.insertNewObjectForEntityForName("BusRoute", inManagedObjectContext: context) as? BusRoute {
-            
             newRoute.name = foundRoute.name
             newRoute.number = foundRoute.number
             newRoute.direction = directionAsString[foundDirection]!
-            newRoute.lastUpdated = NSDate()
             
-            for stop in foundStops {
-                if let databaseStop = BusStop.addStopToDatabase(stop, inManagedObjectContex: context) {
-                    newRoute.addStopsObject(databaseStop)
+            if let stops = foundStops where stops.count > 0 {
+                newRoute.hasStopsData = true
+                for stop in stops {
+                    if let databaseStop = BusStop.addStopToDatabase(stop, inManagedObjectContex: context) {
+                        newRoute.addStopsObject(databaseStop)
+                    }
                 }
+            } else {
+                newRoute.hasStopsData = false
             }
             
             return newRoute
