@@ -20,7 +20,11 @@ class SelectRouteTableViewCell: UITableViewCell {
     
     private func updateLabels() {
         if let name = busRoute?.name, number = busRoute?.number, direction = busRoute?.direction {
-            routeNumberLable?.text = String(number)
+            if String(number).characters.count < 2 {
+                routeNumberLable?.text = "0" + String(number)
+            } else {
+                routeNumberLable?.text = String(number)
+            }
             routeDescriptionLabel.text = name + " - " + direction.substringToIndex(direction.startIndex.successor())
         }
     }

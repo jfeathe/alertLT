@@ -15,6 +15,9 @@
 		9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31D1D6CA70A00B079BF /* WebWatch.swift */; };
 		9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3261D6D197500B079BF /* DatabaseUpdater.swift */; };
 		947247901D71259C00649D3F /* SelectRouteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */; };
+		947247971D713C5500649D3F /* SelectStopTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947247961D713C5500649D3F /* SelectStopTableViewCell.swift */; };
+		947247991D71F09400649D3F /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947247981D71F09400649D3F /* extensions.swift */; };
+		9472479B1D722EAF00649D3F /* SelectStopTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */; };
 		947E36B31D6E0B6B00D2D914 /* SelectRouteTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */; };
 		9496C6AA1D6B8303008DD709 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9496C6A91D6B8303008DD709 /* AppDelegate.swift */; };
 		9496C6AF1D6B8303008DD709 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9496C6AD1D6B8303008DD709 /* Main.storyboard */; };
@@ -32,6 +35,9 @@
 		9464B31D1D6CA70A00B079BF /* WebWatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebWatch.swift; sourceTree = "<group>"; };
 		9464B3261D6D197500B079BF /* DatabaseUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseUpdater.swift; sourceTree = "<group>"; };
 		9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectRouteTableViewCell.swift; sourceTree = "<group>"; };
+		947247961D713C5500649D3F /* SelectStopTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectStopTableViewCell.swift; sourceTree = "<group>"; };
+		947247981D71F09400649D3F /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
+		9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectStopTableViewController.swift; sourceTree = "<group>"; };
 		947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectRouteTableViewController.swift; sourceTree = "<group>"; };
 		9496C6A61D6B8303008DD709 /* alertLT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = alertLT.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9496C6A91D6B8303008DD709 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -53,6 +59,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		947247951D7137F700649D3F /* Favorite Route Files */ = {
+			isa = PBXGroup;
+			children = (
+				9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */,
+				947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */,
+				9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */,
+				9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */,
+				947247961D713C5500649D3F /* SelectStopTableViewCell.swift */,
+			);
+			name = "Favorite Route Files";
+			sourceTree = "<group>";
+		};
 		9496C69D1D6B8303008DD709 = {
 			isa = PBXGroup;
 			children = (
@@ -73,12 +91,11 @@
 			isa = PBXGroup;
 			children = (
 				9496C6AD1D6B8303008DD709 /* Main.storyboard */,
-				947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */,
-				9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */,
-				9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */,
+				947247981D71F09400649D3F /* extensions.swift */,
 				9464B31D1D6CA70A00B079BF /* WebWatch.swift */,
 				9496C6A91D6B8303008DD709 /* AppDelegate.swift */,
 				9464B3261D6D197500B079BF /* DatabaseUpdater.swift */,
+				947247951D7137F700649D3F /* Favorite Route Files */,
 				9496C6BF1D6B862A008DD709 /* Supporting Files */,
 				9496C6BE1D6B85A5008DD709 /* Core Data */,
 			);
@@ -178,8 +195,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				947247971D713C5500649D3F /* SelectStopTableViewCell.swift in Sources */,
 				9464B3201D6CA70A00B079BF /* BusStop.swift in Sources */,
 				9464B31F1D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift in Sources */,
+				9472479B1D722EAF00649D3F /* SelectStopTableViewController.swift in Sources */,
+				947247991D71F09400649D3F /* extensions.swift in Sources */,
 				9464B3211D6CA70A00B079BF /* BusStop+CoreDataProperties.swift in Sources */,
 				9464B31E1D6CA70A00B079BF /* BusRoute.swift in Sources */,
 				9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */,

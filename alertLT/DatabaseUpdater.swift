@@ -11,22 +11,22 @@ import CoreData
 
 class DatabaseUpdater {
     
-    var managedObjectContex: NSManagedObjectContext?
+    private var managedObjectContex: NSManagedObjectContext?
     private let defaults = NSUserDefaults.standardUserDefaults()
     
-    let stringToWebWatchDirection = [
+    private let stringToWebWatchDirection = [
         "Northbound" : WebWatchDirection.Northbound,
         "Southbound" : WebWatchDirection.Southbound,
         "Eastbound" : WebWatchDirection.Eastbound,
         "Westbound" : WebWatchDirection.Westbound
     ]
     
-    init(context: NSManagedObjectContext?) {
-        self.managedObjectContex = context
-    }
-    
     private enum Constants {
         static let dateLastUpdatedKey = "DateLastUpdated"
+    }
+    
+    init(context: NSManagedObjectContext?) {
+        self.managedObjectContex = context
     }
     
     // TODO: Add Check for if on WIFI
@@ -39,27 +39,21 @@ class DatabaseUpdater {
     }
     
     ///Returns if the last database update is older then the given number of time units ago
-    func lastDatabaseUpdateWasMoreThan(value: Int, timeUnit: NSCalendarUnit) -> Bool {
+    private func lastDatabaseUpdateWasMoreThan(value: Int, timeUnit: NSCalendarUnit) -> Bool {
         if let lastUpdatedDate = (defaults.objectForKey(Constants.dateLastUpdatedKey) as? NSDate) {
-            
             let calander = NSCalendar.currentCalendar()
-            
-            guard let timeToCompareAgainst = calander.dateByAddingUnit(timeUnit, value: -value, toDate: NSDate(), options: []) else {
-                return true
+            if let timeToCompareAgainst = calander.dateByAddingUnit(timeUnit, value: -value, toDate: NSDate(), options: [])  {
+                if !(lastUpdatedDate == lastUpdatedDate.earlierDate(timeToCompareAgainst)) {
+                    return false
+                }
             }
-            if lastUpdatedDate == lastUpdatedDate.earlierDate(timeToCompareAgainst) {
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return true
         }
+        return true
     }
     
     func routesMissingInfo() -> [BusRoute]? {
-        var routesMissingInfo: [BusRoute]?
         
+        var routesMissingInfo: [BusRoute]?
         managedObjectContex?.performBlockAndWait {
             [weak weakSelf = self] in
             let routesWithoutStopsRequest = NSFetchRequest(entityName: BusRoute.entityName)
@@ -74,13 +68,12 @@ class DatabaseUpdater {
         return routesMissingInfo
     }
     
-    func updateDatabase() throws {
+    func updateEntireDatabase() throws {
         let routes = try WebWatchScrapper.fetchListOfRoutes()
         for route in routes {
             let directions = try WebWatchScrapper.fetchDirectionsForRoute(route)
             
             let firstDirectionStops = try WebWatchScrapper.fetchListOfStopsForRoute(route, forDirection: directions.firstDirection)
-            
             let secondDirectionStops = try WebWatchScrapper.fetchListOfStopsForRoute(route, forDirection: directions.secondDirection)
             
             managedObjectContex?.performBlockAndWait { [weak weakSelf = self] in
@@ -109,7 +102,7 @@ class DatabaseUpdater {
         }
         defaults.setObject(NSDate(), forKey: Constants.dateLastUpdatedKey)
     }
-
+    
     func printDatabaseContents() {
         managedObjectContex?.performBlock {
             if let results = try? self.managedObjectContex!.executeFetchRequest(NSFetchRequest(entityName: BusRoute.entityName)) {
@@ -127,6 +120,7 @@ class DatabaseUpdater {
             }
         }
     }
+
 }
 
 

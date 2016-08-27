@@ -16,8 +16,7 @@ class FavoritesTableViewController: UITableViewController {
         static let SelectRouteSegue = "SelectRouteSegue"
     }
     
-    //Outlets and UIElements
-    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
+    //UI Elements for the Loading Data Message
     private var loadingDataSpinner = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
     private var loadingDataLable:  UILabel = {
         let label = UILabel()
@@ -48,11 +47,16 @@ class FavoritesTableViewController: UITableViewController {
         tableView?.scrollEnabled = true
     }
     
-    func updateDatabase(dbUpdater: DatabaseUpdater) {
+    ///Updates the database using a DatabaseUpdater instance. Pass in an array of stops if you want to limit which routes are updated
+    private func updateDatabaseUsing(dbUpdater: DatabaseUpdater, onlyUpdateRoutes routesToUpdate: [BusRoute]?) {
         showLoadingMessage()
         dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
             do {
-                try dbUpdater.updateDatabase()
+                if let routes = routesToUpdate {
+                    try dbUpdater.updateRoutes(routes)
+                } else {
+                    try dbUpdater.updateEntireDatabase()
+                }
                 // TODO: Handel Errors
             } catch WebWatchError.CannotGetContentsOfURL {
                 print(1)
@@ -63,30 +67,11 @@ class FavoritesTableViewController: UITableViewController {
             }
             dispatch_async(dispatch_get_main_queue()) {
                 weakSelf?.hideLoadingMessage()
-                dbUpdater.printDatabaseContents()
             }
         }
     }
+
     
-    private func updateRoutes(routes: [BusRoute], withUpdater dbUpdater: DatabaseUpdater) {
-        showLoadingMessage()
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
-            do {
-                try dbUpdater.updateRoutes(routes)
-                // TODO: Handel Errors
-            } catch WebWatchError.CannotGetContentsOfURL {
-                print(1)
-            } catch WebWatchError.InvalidURL {
-                print(2)
-            } catch {
-                print(3)
-            }
-            dispatch_async(dispatch_get_main_queue()) {
-                weakSelf?.hideLoadingMessage()
-            }
-        }
-    }
-     
     // MARK: View Controller Lifecycle
     
     override func viewDidLoad() {
@@ -100,9 +85,9 @@ class FavoritesTableViewController: UITableViewController {
         super.viewDidAppear(animated)
         let dbUpdater = DatabaseUpdater(context: managedObjectContex)
         if dbUpdater.databaseShouldBeUpdated() {
-            updateDatabase(dbUpdater)
-        } else if let routesWithMissingInfo = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
-            updateRoutes(routesWithMissingInfo, withUpdater: dbUpdater)
+            updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: nil)
+        } else if let routesThatAreMissingInformation = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
+            updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: routesThatAreMissingInformation)
         }
     }
     
@@ -170,9 +155,6 @@ class FavoritesTableViewController: UITableViewController {
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-        
         if segue.identifier == Constants.SelectRouteSegue {
             if let selectRouteTVC = segue.destinationViewController.contentViewController as? SelectRouteTableViewController {
                 selectRouteTVC.managedObjectContex = managedObjectContex
@@ -182,15 +164,5 @@ class FavoritesTableViewController: UITableViewController {
     }
     
     @IBAction func cancelAddingFavoriteStop(segue:UIStoryboardSegue) {
-    }
-}
-
-extension UIViewController {
-    var contentViewController: UIViewController {
-        if let navCon = self as? UINavigationController {
-            return navCon.visibleViewController ?? self
-        } else {
-            return self
-        }
     }
 }

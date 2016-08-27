@@ -20,7 +20,6 @@ class WebWatchScrapper {
         guard let routesURL = NSURL(string: WebWatchConstants.queryPrefix) else {
             throw WebWatchError.InvalidURL
         }
-        
         do {
             let contentsOfURL = try String(contentsOfURL: routesURL)
             return scrapeRoutesFromWebWatchPage(contentsOfURL)
@@ -41,14 +40,12 @@ class WebWatchScrapper {
         //but we also have extra junk seperations in the array that we do not need
         //so we need to check each seperation and see which ones contain routes
         for var seperation in seperations {
-            
             //if the seperation has this prefix we know it must contain a route
             if seperation.hasPrefix("\r\n<a href=\"MobileAda.aspx?r") {
-                
                 //Trim the begining of the <a> html tag
-                seperation.removeRange(seperation.startIndex...seperation.startIndex.advancedBy("\r\n<a href=\"MobileAda.aspx?r".characters.count))
+                seperation.removePrefix("\r\n<a href=\"MobileAda.aspx?r")
                 //Trim the ending of the <a> html tag
-                seperation.removeRange(seperation.endIndex.advancedBy(-"</a>".characters.count)..<seperation.endIndex)
+                seperation.removeSuffix("</a>")
                 //What we are left with is the routeNumber followed by the route name with "\>" in between
                 //So if we we split the remaining bit of the seperation by that sequence of characters it gives us
                 //the route number at index 0 and the route name at index 1
@@ -59,7 +56,6 @@ class WebWatchScrapper {
                 }
             }
         }
-        
         return routes
     }
     
@@ -103,7 +99,6 @@ class WebWatchScrapper {
         guard let stopsURL = NSURL(string: stopsURLString) else {
             throw WebWatchError.InvalidURL
         }
-        
         do {
             let contentsOfURL = try String(contentsOfURL: stopsURL)
             return scrapeStopsFromWebWatchPage(contentsOfURL, forRoute: route, forDirection: direction)
@@ -129,14 +124,15 @@ class WebWatchScrapper {
             if seperation.hasPrefix("\r\n<a href=\"MobileAda.aspx?r") {
                 
                 //Trim the begining of the <a> html tag
-                seperation.removeRange(seperation.startIndex...seperation.startIndex.advancedBy("\r\n<a href=\"MobileAda.aspx?r".characters.count))
+                seperation.removePrefix("\r\n<a href=\"MobileAda.aspx?r")
                 //Trim the ending of the <a> html tag
-                seperation.removeRange(seperation.endIndex.advancedBy(-"</a>".characters.count)..<seperation.endIndex)
+                seperation.removeSuffix("</a>")
                 //What we are left with is the route, direction and stop followed by the stop name with "\>" in between
                 //So if we we split the remaining bit of the seperation by that sequence of characters it gives us
                 //the route, direction and stop as a string in index 0 and the stop name at index 1
                 var values = seperation.componentsSeparatedByString("\">")
-                let nameOfStop = values[1]
+                var nameOfStop = values[1]
+                nameOfStop.removeString("amp;")
                 //If we take the length of the string that contains the route, direction and stop and take away the route and direction
                 //we are left with the length of the stop number
                 let numberOfDigitsInStopNumber = -(values[0].characters.count - "\(String(format: "%02d", route.number))&d=\(direction.rawValue)&s=".characters.count)
@@ -148,7 +144,6 @@ class WebWatchScrapper {
             }
     
         }
-        
         return stops.count > 0 ? stops : nil
     }
 }

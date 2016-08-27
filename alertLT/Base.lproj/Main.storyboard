@@ -103,7 +103,7 @@
                                                 </mask>
                                             </variation>
                                         </label>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="q1t-Ny-DyN">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="6" translatesAutoresizingMaskIntoConstraints="NO" id="q1t-Ny-DyN">
                                             <rect key="frame" x="80" y="16" width="520" height="20"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <color key="textColor" red="0.40000000600000002" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
@@ -146,7 +146,7 @@
                                 <connections>
                                     <outlet property="routeDescriptionLabel" destination="q1t-Ny-DyN" id="y4l-wF-4cG"/>
                                     <outlet property="routeNumberLable" destination="B6g-1z-uje" id="KBi-ax-NzX"/>
-                                    <segue destination="zeC-pg-PfU" kind="show" id="VdG-mw-3Jg"/>
+                                    <segue destination="zeC-pg-PfU" kind="show" identifier="SelectStopSegue" id="VdG-mw-3Jg"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -172,22 +172,90 @@
             </objects>
             <point key="canvasLocation" x="2804" y="215"/>
         </scene>
-        <!--Table View Controller-->
+        <!--Select Stop Table View Controller-->
         <scene sceneID="vgn-x0-VoB">
             <objects>
-                <tableViewController id="zeC-pg-PfU" sceneMemberID="viewController">
+                <tableViewController id="zeC-pg-PfU" customClass="SelectStopTableViewController" customModule="alertLT" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="A3W-1J-mb5">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="LYj-cH-odc">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="StopCell" id="LYj-cH-odc" customClass="SelectStopTableViewCell" customModule="alertLT" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="92" width="600" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="LYj-cH-odc" id="q6F-Pb-SkQ">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.75" translatesAutoresizingMaskIntoConstraints="NO" id="iA4-cn-TeG">
+                                            <rect key="frame" x="8" y="0.0" width="592" height="23"/>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                                            <color key="textColor" red="0.40000000600000002" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="252" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="U5H-HP-fmw">
+                                            <rect key="frame" x="8" y="23" width="592" height="19.5"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="24" id="14V-LT-zUM"/>
+                                                <constraint firstAttribute="width" constant="67" id="ZU4-8Z-8YK"/>
+                                                <constraint firstAttribute="width" constant="64" id="zvH-wD-VGM"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                            <variation key="default">
+                                                <mask key="constraints">
+                                                    <exclude reference="14V-LT-zUM"/>
+                                                    <exclude reference="ZU4-8Z-8YK"/>
+                                                    <exclude reference="zvH-wD-VGM"/>
+                                                </mask>
+                                            </variation>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="U5H-HP-fmw" firstAttribute="leading" secondItem="iA4-cn-TeG" secondAttribute="leading" id="1gx-8u-ga2"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="U5H-HP-fmw" secondAttribute="bottom" constant="14" id="3Wb-rJ-sSx"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="leading" secondItem="q6F-Pb-SkQ" secondAttribute="leadingMargin" constant="46" id="6Rb-fI-X7I"/>
+                                        <constraint firstItem="U5H-HP-fmw" firstAttribute="trailing" secondItem="iA4-cn-TeG" secondAttribute="trailing" id="9Vj-Bw-hny"/>
+                                        <constraint firstItem="U5H-HP-fmw" firstAttribute="top" secondItem="iA4-cn-TeG" secondAttribute="bottom" id="9zl-x4-Eme"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="iA4-cn-TeG" secondAttribute="trailing" constant="-46" id="CQM-Jz-A50"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="top" secondItem="U5H-HP-fmw" secondAttribute="bottom" constant="-28.5" id="EBV-ak-phh"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="leading" secondItem="q6F-Pb-SkQ" secondAttribute="leadingMargin" id="L3w-q4-src"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="top" secondItem="q6F-Pb-SkQ" secondAttribute="top" id="L93-Bn-8o6"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="top" secondItem="q6F-Pb-SkQ" secondAttribute="topMargin" id="M9U-Qc-nWi"/>
+                                        <constraint firstAttribute="trailing" secondItem="iA4-cn-TeG" secondAttribute="trailing" id="Qgf-Lt-i7V"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="iA4-cn-TeG" secondAttribute="trailing" constant="72" id="Qu7-P1-8Ae"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="top" secondItem="U5H-HP-fmw" secondAttribute="bottom" constant="-7" id="Tmc-Ai-Fcp"/>
+                                        <constraint firstItem="U5H-HP-fmw" firstAttribute="centerY" secondItem="iA4-cn-TeG" secondAttribute="centerY" id="XTY-xA-Ezp"/>
+                                        <constraint firstAttribute="leadingMargin" secondItem="iA4-cn-TeG" secondAttribute="leading" id="cMs-Ys-c9B"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="leading" secondItem="U5H-HP-fmw" secondAttribute="trailing" constant="8" symbolic="YES" id="nHb-DW-N7g"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="leading" secondItem="U5H-HP-fmw" secondAttribute="leading" id="rE7-4V-Sc5"/>
+                                        <constraint firstItem="iA4-cn-TeG" firstAttribute="leading" secondItem="U5H-HP-fmw" secondAttribute="trailing" id="u3s-jV-K2W"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="iA4-cn-TeG" secondAttribute="trailing" id="why-7x-Di9"/>
+                                    </constraints>
+                                    <variation key="default">
+                                        <mask key="constraints">
+                                            <exclude reference="6Rb-fI-X7I"/>
+                                            <exclude reference="CQM-Jz-A50"/>
+                                            <exclude reference="EBV-ak-phh"/>
+                                            <exclude reference="M9U-Qc-nWi"/>
+                                            <exclude reference="Qu7-P1-8Ae"/>
+                                            <exclude reference="Tmc-Ai-Fcp"/>
+                                            <exclude reference="cMs-Ys-c9B"/>
+                                            <exclude reference="nHb-DW-N7g"/>
+                                            <exclude reference="rE7-4V-Sc5"/>
+                                            <exclude reference="u3s-jV-K2W"/>
+                                            <exclude reference="why-7x-Di9"/>
+                                            <exclude reference="3Wb-rJ-sSx"/>
+                                            <exclude reference="XTY-xA-Ezp"/>
+                                        </mask>
+                                    </variation>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="stopDescriptionLabel" destination="iA4-cn-TeG" id="s3H-Oe-c1e"/>
+                                    <outlet property="stopNumberLabel" destination="U5H-HP-fmw" id="hr5-fg-QfH"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -198,7 +266,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="I3g-Y5-4lP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3486" y="220"/>
+            <point key="canvasLocation" x="3487" y="215"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="hbc-6e-Fub">
