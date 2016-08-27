@@ -9,139 +9,109 @@
 import UIKit
 import CoreData
 
-class SelectRouteTableViewController: UITableViewController {
+class SelectRouteTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     
-    private enum Constants {
-        static let dateLastUpdatedKey = "DateLastUpdated"
+    enum Constants {
+        static let SelectRoutesCache = "selectRoutesCache"
+        static let RouteCellIdentifier = "RouteCell"
     }
     
     //Outlets and UIElements
     @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
-    private var loadingDataSpinner = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-    private var loadingDataLable:  UILabel = {
-        let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.text = "Downloading Route Information \n This may take a moment."
-        label.numberOfLines = 2
-        label.textAlignment = .Center
-        return label
-    }()
     
     // MARK: Model
     var managedObjectContex: NSManagedObjectContext?
-    
-    
-    // MARK: Methods for checking / updating database
-    
-    func updateDatabase(dbUpdater: DatabaseUpdater) {
-        
-        showLoadingMessage()
-        //Go to a different queue to load data from the webwatch website
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
-            do {
-                try dbUpdater.updateDatabase()
-            // TODO: Handel Errors
-            } catch WebWatchError.CannotGetContentsOfURL {
-                print(1)
-            } catch WebWatchError.InvalidURL {
-                print(2)
-            } catch {
-                print(3)
-            }
-            //Go back to main queue and update UI
-            dispatch_async(dispatch_get_main_queue()) {
-                weakSelf?.hideLoadingMessage()
-                dbUpdater.printDatabaseContents()
-            }
-        }
-    }
-    
-    private func updateRoutes(routes: [BusRoute], withUpdater dbUpdater: DatabaseUpdater) {
-        
-        showLoadingMessage()
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
-            do {
-                try dbUpdater.updateRoutes(routes)
-                // TODO: Handel Errors
-            } catch WebWatchError.CannotGetContentsOfURL {
-                print(1)
-            } catch WebWatchError.InvalidURL {
-                print(2)
-            } catch {
-                print(3)
-            }
-            //Go back to main queue and update UI
-            dispatch_async(dispatch_get_main_queue()) {
-                weakSelf?.hideLoadingMessage()
-            }
-        }
-    }
-    
-    func showLoadingMessage() {
-        self.navigationController?.view.addSubview(loadingDataLable)
-        self.navigationController?.view.addSubview(loadingDataSpinner)
-        loadingDataLable.hidden = false
-        loadingDataSpinner.hidden = false
-        loadingDataSpinner.startAnimating()
-        cancelBarButton.enabled = false
-        tableView?.scrollEnabled = false
-    }
-    
-    private func hideLoadingMessage() {
-        loadingDataLable.hidden = true
-        loadingDataSpinner.hidden = true
-        cancelBarButton.enabled = true
-        tableView?.scrollEnabled = true
-    }
+    var fetchedResultsController: NSFetchedResultsController?
     
     // MARK View Controller Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        initalizeFetchedResultsController()
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    override func viewWillLayoutSubviews() {
-        if let viewCenter = self.navigationController?.view.center {
-            loadingDataSpinner.center = CGPoint(x: viewCenter.x, y: viewCenter.y - loadingDataLable.frame.height)
-        }
-        if let viewWidth = self.navigationController?.view.bounds.width,
-            let viewCenter = self.navigationController?.view.center {
-            loadingDataLable.frame.size = CGSize(width: viewWidth, height: 40)
-            loadingDataLable.center = viewCenter
-        }
-    }
-    
-    override func viewDidAppear(animated: Bool) {
-        let dbUpdater = DatabaseUpdater(context: managedObjectContex)
-        if dbUpdater.databaseShouldBeUpdated() {
-            updateDatabase(dbUpdater)
-        } else if let routesWithMissingInfo = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
-            updateRoutes(routesWithMissingInfo, withUpdater: dbUpdater)
-        }
-    }
-
     // MARK: - Table view data source
+    
+    private func initalizeFetchedResultsController() {
+        let routesRequest = NSFetchRequest(entityName: BusRoute.entityName)
+        let nameSort = NSSortDescriptor(key: "number", ascending: true)
+        let directionSort = NSSortDescriptor(key: "direction", ascending: true)
+        routesRequest.sortDescriptors = [nameSort, directionSort]
+        if let context = managedObjectContex {
+            fetchedResultsController = NSFetchedResultsController(fetchRequest: routesRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: Constants.SelectRoutesCache)
+            do {
+                try fetchedResultsController?.performFetch()
+            } catch {
+                fatalError("Failed to initialize FetchedResultsController: \(error)")
+            }
+        } else {
+            fatalError("SelectRouteTVC does not have instance of managedObjectContext")
+        }
+    }
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+        return fetchedResultsController?.sections?.count ?? 1
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
+        return fetchedResultsController?.sections?[section].numberOfObjects ?? 0
     }
 
-    /*
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
-
-        // Configure the cell...
-
+        let cell = tableView.dequeueReusableCellWithIdentifier(Constants.RouteCellIdentifier, forIndexPath: indexPath)
+        configureCell(cell, forIndexPath: indexPath)
         return cell
     }
-    */
+    
+    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+        
+        if let cell = cell as? SelectRouteTableViewCell,
+            let route = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusRoute {
+            cell.busRoute = route
+        }
+    }
+    
+    // MARK - Fetched Results Controller Delegate Methods
+    
+    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+        tableView.beginUpdates()
+    }
+    
+    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+        tableView.endUpdates()
+    }
+    
+    func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
+        switch type {
+        case .Insert:
+            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+        case .Delete:
+            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+        case .Move:
+            break
+        case .Update:
+            break
+        }
+    }
+    
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        switch type {
+        case .Insert:
+            tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
+        case .Delete:
+            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+        case .Update:
+            configureCell(self.tableView.cellForRowAtIndexPath(indexPath!)!, forIndexPath: indexPath!)
+        case .Move:
+            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+            tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+        }
+    }
 
     /*
     // MARK: - Navigation

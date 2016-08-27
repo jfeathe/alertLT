@@ -29,7 +29,7 @@ class DatabaseUpdater {
         static let dateLastUpdatedKey = "DateLastUpdated"
     }
     
-    // TODO: Remove debugging print
+    // TODO: Add Check for if on WIFI
     func databaseShouldBeUpdated() -> Bool {
         return lastDatabaseUpdateWasMoreThan(14, timeUnit: .Day)
     }
@@ -75,7 +75,6 @@ class DatabaseUpdater {
     }
     
     func updateDatabase() throws {
-        print("Updating Database")
         let routes = try WebWatchScrapper.fetchListOfRoutes()
         for route in routes {
             let directions = try WebWatchScrapper.fetchDirectionsForRoute(route)

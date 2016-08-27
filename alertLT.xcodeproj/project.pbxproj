@@ -14,6 +14,7 @@
 		9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */; };
 		9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31D1D6CA70A00B079BF /* WebWatch.swift */; };
 		9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3261D6D197500B079BF /* DatabaseUpdater.swift */; };
+		947247901D71259C00649D3F /* SelectRouteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */; };
 		947E36B31D6E0B6B00D2D914 /* SelectRouteTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */; };
 		9496C6AA1D6B8303008DD709 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9496C6A91D6B8303008DD709 /* AppDelegate.swift */; };
 		9496C6AF1D6B8303008DD709 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9496C6AD1D6B8303008DD709 /* Main.storyboard */; };
@@ -30,6 +31,7 @@
 		9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesTableViewController.swift; sourceTree = "<group>"; };
 		9464B31D1D6CA70A00B079BF /* WebWatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebWatch.swift; sourceTree = "<group>"; };
 		9464B3261D6D197500B079BF /* DatabaseUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseUpdater.swift; sourceTree = "<group>"; };
+		9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectRouteTableViewCell.swift; sourceTree = "<group>"; };
 		947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectRouteTableViewController.swift; sourceTree = "<group>"; };
 		9496C6A61D6B8303008DD709 /* alertLT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = alertLT.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9496C6A91D6B8303008DD709 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -72,6 +74,7 @@
 			children = (
 				9496C6AD1D6B8303008DD709 /* Main.storyboard */,
 				947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */,
+				9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */,
 				9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */,
 				9464B31D1D6CA70A00B079BF /* WebWatch.swift */,
 				9496C6A91D6B8303008DD709 /* AppDelegate.swift */,
@@ -182,6 +185,7 @@
 				9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */,
 				9496C6AA1D6B8303008DD709 /* AppDelegate.swift in Sources */,
 				9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */,
+				947247901D71259C00649D3F /* SelectRouteTableViewCell.swift in Sources */,
 				947E36B31D6E0B6B00D2D914 /* SelectRouteTableViewController.swift in Sources */,
 				9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */,
 				9496C6B21D6B8303008DD709 /* alertLT.xcdatamodeld in Sources */,

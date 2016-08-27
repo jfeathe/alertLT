@@ -16,16 +16,106 @@ class FavoritesTableViewController: UITableViewController {
         static let SelectRouteSegue = "SelectRouteSegue"
     }
     
+    //Outlets and UIElements
+    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
+    private var loadingDataSpinner = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+    private var loadingDataLable:  UILabel = {
+        let label = UILabel()
+        label.adjustsFontSizeToFitWidth = true
+        label.text = "Downloading Route Information \n This may take a moment."
+        label.numberOfLines = 2
+        label.textAlignment = .Center
+        return label
+    }()
+    
     // MARK: Model
     
     var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
     
+    // MARK: Updating Database Methods
+    func showLoadingMessage() {
+        self.navigationController?.view.addSubview(loadingDataLable)
+        self.navigationController?.view.addSubview(loadingDataSpinner)
+        loadingDataLable.hidden = false
+        loadingDataSpinner.hidden = false
+        loadingDataSpinner.startAnimating()
+        tableView?.scrollEnabled = false
+    }
+    
+    private func hideLoadingMessage() {
+        loadingDataLable.hidden = true
+        loadingDataSpinner.hidden = true
+        tableView?.scrollEnabled = true
+    }
+    
+    func updateDatabase(dbUpdater: DatabaseUpdater) {
+        showLoadingMessage()
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
+            do {
+                try dbUpdater.updateDatabase()
+                // TODO: Handel Errors
+            } catch WebWatchError.CannotGetContentsOfURL {
+                print(1)
+            } catch WebWatchError.InvalidURL {
+                print(2)
+            } catch {
+                print(3)
+            }
+            dispatch_async(dispatch_get_main_queue()) {
+                weakSelf?.hideLoadingMessage()
+                dbUpdater.printDatabaseContents()
+            }
+        }
+    }
+    
+    private func updateRoutes(routes: [BusRoute], withUpdater dbUpdater: DatabaseUpdater) {
+        showLoadingMessage()
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
+            do {
+                try dbUpdater.updateRoutes(routes)
+                // TODO: Handel Errors
+            } catch WebWatchError.CannotGetContentsOfURL {
+                print(1)
+            } catch WebWatchError.InvalidURL {
+                print(2)
+            } catch {
+                print(3)
+            }
+            dispatch_async(dispatch_get_main_queue()) {
+                weakSelf?.hideLoadingMessage()
+            }
+        }
+    }
+     
     // MARK: View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.rightBarButtonItem = self.editButtonItem()
         editButtonItem().tintColor = UIColor.whiteColor()
+        initalizeFetchedResultsController()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        let dbUpdater = DatabaseUpdater(context: managedObjectContex)
+        if dbUpdater.databaseShouldBeUpdated() {
+            updateDatabase(dbUpdater)
+        } else if let routesWithMissingInfo = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
+            updateRoutes(routesWithMissingInfo, withUpdater: dbUpdater)
+        }
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        if let viewCenter = self.navigationController?.view.center {
+            loadingDataSpinner.center = CGPoint(x: viewCenter.x, y: viewCenter.y - loadingDataLable.frame.height)
+        }
+        if let viewWidth = self.navigationController?.view.bounds.width,
+            let viewCenter = self.navigationController?.view.center {
+            loadingDataLable.frame.size = CGSize(width: viewWidth, height: 40)
+            loadingDataLable.center = viewCenter
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -34,6 +124,10 @@ class FavoritesTableViewController: UITableViewController {
     }
 
     // MARK: - Table view data source
+    
+    private func initalizeFetchedResultsController() {
+
+    }
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
@@ -54,15 +148,6 @@ class FavoritesTableViewController: UITableViewController {
         return cell
     }
     */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
     
     // Override to support editing the table view.
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
@@ -74,22 +159,12 @@ class FavoritesTableViewController: UITableViewController {
         }    
     }
     
-
     /*
     // Override to support rearranging the table view.
     override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
 
     }
     */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
     
     // MARK: - Navigation
 
@@ -112,10 +187,8 @@ class FavoritesTableViewController: UITableViewController {
 
 extension UIViewController {
     var contentViewController: UIViewController {
-        //if what we are seguing to is actually a navigation controller get the "content" / visable view controller
         if let navCon = self as? UINavigationController {
             return navCon.visibleViewController ?? self
-            //otherwise just return self since we are the contnet
         } else {
             return self
         }
