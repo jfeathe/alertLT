@@ -2,7 +2,7 @@
 //  BusStop+CoreDataProperties.swift
 //  alertLT
 //
-//  Created by Ryan Zegray on 2016-08-24.
+//  Created by Ryan Zegray on 2016-08-28.
 //  Copyright © 2016 Ryan Zegray. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu

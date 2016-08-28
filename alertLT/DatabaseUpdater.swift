@@ -105,12 +105,12 @@ class DatabaseUpdater {
     
     func printDatabaseContents() {
         managedObjectContex?.performBlock {
-            if let results = try? self.managedObjectContex!.executeFetchRequest(NSFetchRequest(entityName: BusRoute.entityName)) {
+                if let results = try? self.managedObjectContex!.executeFetchRequest(NSFetchRequest(entityName: BusRoute.entityName)) {
                 for result in results {
                     if let route = result as? BusRoute {
                         print(route.name! + " - "+route.direction!)
                         if let stops = route.stops?.allObjects as? [BusStop] {
-                            for stop in stops {
+                            for stop in stops.sort( {  $0.actualName < $1.actualName} ) {
                                 print(stop.actualName!)
                             }
                         }

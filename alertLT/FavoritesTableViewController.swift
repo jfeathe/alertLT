@@ -10,10 +10,11 @@ import UIKit
 import CoreData
 
 
-class FavoritesTableViewController: UITableViewController {
+class FavoritesTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     
     enum Constants {
         static let SelectRouteSegue = "SelectRouteSegue"
+        static let FavoriteStopCell = "FavoriteStopCell"
     }
     
     //UI Elements for the Loading Data Message
@@ -30,6 +31,12 @@ class FavoritesTableViewController: UITableViewController {
     // MARK: Model
     
     var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
+    
+    var fetchedResultsController: NSFetchedResultsController? {
+        didSet {
+            fetchedResultsController?.delegate = self
+        }
+    }
     
     // MARK: Updating Database Methods
     func showLoadingMessage() {
@@ -67,6 +74,7 @@ class FavoritesTableViewController: UITableViewController {
             }
             dispatch_async(dispatch_get_main_queue()) {
                 weakSelf?.hideLoadingMessage()
+                dbUpdater.printDatabaseContents()
             }
         }
     }
@@ -89,6 +97,7 @@ class FavoritesTableViewController: UITableViewController {
         } else if let routesThatAreMissingInformation = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
             updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: routesThatAreMissingInformation)
         }
+        dbUpdater.printDatabaseContents()
     }
     
     override func viewWillLayoutSubviews() {
@@ -111,28 +120,44 @@ class FavoritesTableViewController: UITableViewController {
     // MARK: - Table view data source
     
     private func initalizeFetchedResultsController() {
+        let favoriteStopRequest = NSFetchRequest(entityName: BusStop.entityName)
+        favoriteStopRequest.predicate = NSPredicate(format: "favorited == %@", NSNumber(bool: true))
+        favoriteStopRequest.sortDescriptors = [NSSortDescriptor(key: "actualName", ascending: true)]
+        if let context = managedObjectContex {
+            fetchedResultsController = NSFetchedResultsController(fetchRequest: favoriteStopRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
+            do {
+                try fetchedResultsController?.performFetch()
+            } catch {
+                fatalError("Failed to initialize FetchedResultsController: \(error)")
+            }
+        } else {
+            fatalError("FavoritesTableViewController does not have instance of managedObjectContext")
+        }
 
     }
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+        return fetchedResultsController?.sections?.count ?? 1
     }
-
+    
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
+        return fetchedResultsController?.sections?[section].numberOfObjects ?? 0
     }
 
-    /*
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
-
-        // Configure the cell...
-
+        let cell = tableView.dequeueReusableCellWithIdentifier(Constants.FavoriteStopCell, forIndexPath: indexPath)
+        configureCell(cell, forIndexPath: indexPath)
         return cell
     }
-    */
+    
+    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+        if let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop {
+            if let cell = cell as? FavoriteStopTableViewCell {
+                cell.stop = stop
+            }
+        }
+    }
+
     
     // Override to support editing the table view.
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
@@ -151,6 +176,43 @@ class FavoritesTableViewController: UITableViewController {
     }
     */
     
+    // MARK - Fetched Results Controller Delegate Methods
+    
+    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+        tableView.beginUpdates()
+    }
+    
+    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+        tableView.endUpdates()
+    }
+    
+    func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
+        switch type {
+        case .Insert:
+            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+        case .Delete:
+            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+        case .Move:
+            break
+        case .Update:
+            break
+        }
+    }
+    
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        switch type {
+        case .Insert:
+            tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
+        case .Delete:
+            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+        case .Update:
+            configureCell(self.tableView.cellForRowAtIndexPath(indexPath!)!, forIndexPath: indexPath!)
+        case .Move:
+            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+            tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+        }
+    }
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -164,5 +226,10 @@ class FavoritesTableViewController: UITableViewController {
     }
     
     @IBAction func cancelAddingFavoriteStop(segue:UIStoryboardSegue) {
+    }
+    
+    @IBAction func addFavoriteStop(segue: UIStoryboardSegue) {
+        _ = try? managedObjectContex?.save()
+
     }
 }

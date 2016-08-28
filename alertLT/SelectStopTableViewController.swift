@@ -22,7 +22,7 @@ class SelectStopTableViewController: UITableViewController, NSFetchedResultsCont
     
     enum Constants {
         static let StopCellIdentifier = "StopCell"
-        static let SelectStopSegueIdentifier = "SelectStopSegue"
+        static let CustomizeFavoriteRouteSegue = "CustomizeFavoriteRouteSegue"
     }
     
     override func viewDidLoad() {
@@ -43,7 +43,7 @@ class SelectStopTableViewController: UITableViewController, NSFetchedResultsCont
     
     private func initalizeFetchedResultsController() {
         let stopsRequest = NSFetchRequest(entityName: BusStop.entityName)
-        stopsRequest.predicate = NSPredicate(format: "ANY routes.number == %@", (route?.number)!)
+        stopsRequest.predicate = NSPredicate(format: "ANY routes == %@", route!)
         stopsRequest.sortDescriptors = [NSSortDescriptor(key: "actualName", ascending: true)]
         if let context = managedObjectContex {
             fetchedResultsController = NSFetchedResultsController(fetchRequest: stopsRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
@@ -117,14 +117,18 @@ class SelectStopTableViewController: UITableViewController, NSFetchedResultsCont
     }
 
 
-    /*
+    
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        if segue.identifier == Constants.CustomizeFavoriteRouteSegue {
+            if let desinationVC = segue.destinationViewController.contentViewController as? AddFavoriteStopViewController {
+                desinationVC.route = route
+                desinationVC.stop = (sender as? SelectStopTableViewCell)?.busStop
+            }
+        }
     }
-    */
 
 }
