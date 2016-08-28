@@ -12,6 +12,8 @@ import CoreData
 
 class BusStop: NSManagedObject {
     
+    static let entityName = "BusStop"
+    
     /// Takes a stop that has been found on the WebWatch Website and adds it to the database
     class func addStopToDatabase(foundStop: WebWatchStop, inManagedObjectContex context: NSManagedObjectContext) -> BusStop? {
         

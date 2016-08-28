@@ -2,7 +2,7 @@
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G31" minimumToolsVersion="Automatic">
     <entity name="BusRoute" representedClassName=".BusRoute" syncable="YES">
         <attribute name="direction" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="lastUpdated" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="hasStopsData" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <relationship name="stops" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BusStop" inverseName="routes" inverseEntity="BusStop" syncable="YES"/>
@@ -15,7 +15,7 @@
         <relationship name="routes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BusRoute" inverseName="stops" inverseEntity="BusRoute" syncable="YES"/>
     </entity>
     <elements>
-        <element name="BusRoute" positionX="-63" positionY="-18" width="128" height="118"/>
+        <element name="BusRoute" positionX="-63" positionY="-18" width="128" height="120"/>
         <element name="BusStop" positionX="198" positionY="54" width="128" height="118"/>
     </elements>
 </model>
