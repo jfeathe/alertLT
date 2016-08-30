@@ -9,11 +9,17 @@
 import UIKit
 import CoreData
 
-class SelectStopTableViewController: FetchedResultsTableViewController {
+class SelectStopTableViewController: FetchedResultsTableViewController, UISearchBarDelegate {
     
     // MARK: Model
     var route: BusRoute?
     var managedObjectContex: NSManagedObjectContext?
+    
+    @IBOutlet weak var searchBar: UISearchBar! {
+        didSet {
+            searchBar.delegate = self
+        }
+    }
     
     enum Constants {
         static let StopCellIdentifier = "StopCell"
@@ -35,15 +41,26 @@ class SelectStopTableViewController: FetchedResultsTableViewController {
     }
 
     // MARK: - Table view data source
-    
     private func initalizeFetchedResultsController() {
+        initalizeFetchedResultsController(nil)
+    }
+    
+    private func initalizeFetchedResultsController(searchBarString: String?) {
         let stopsRequest = NSFetchRequest(entityName: BusStop.entityName)
-        stopsRequest.predicate = NSPredicate(format: "ANY routes == %@", route!)
         stopsRequest.sortDescriptors = [NSSortDescriptor(key: "actualName", ascending: true)]
+        
+        if let searchString = searchBarString {
+            stopsRequest.predicate = NSPredicate(format: "ANY routes == %@ AND (actualName CONTAINS[c] %@ OR number.stringValue CONTAINS[c] %@)",route!,  searchString, searchString)
+        } else {
+            stopsRequest.predicate = NSPredicate(format: "ANY routes == %@", route!)
+
+        }
+        
         if let context = managedObjectContex {
             fetchedResultsController = NSFetchedResultsController(fetchRequest: stopsRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
             do {
                 try fetchedResultsController?.performFetch()
+                tableView.reloadData()
             } catch {
                 fatalError("Failed to initialize FetchedResultsController: \(error)")
             }
@@ -83,6 +100,17 @@ class SelectStopTableViewController: FetchedResultsTableViewController {
         case .Move:
             tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
             tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+        }
+    }
+    
+    
+    // MARK: - Search Bar Delegate Methods
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.characters.count > 0 {
+            initalizeFetchedResultsController(searchText)
+        } else {
+            initalizeFetchedResultsController(nil)
         }
     }
     

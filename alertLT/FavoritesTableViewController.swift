@@ -22,7 +22,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     
     let emptyTableLabel: UILabel = {
        let label =  UILabel()
-        label.text = "You dont have any favorite stops 🙁"
+        label.text = "You dont have any favorite stops  🙁"
         label.textColor = UIColor.grayColor()
         label.textAlignment = .Center
         label.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
@@ -54,15 +54,13 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     
     private func showNoFavoritesMessage() {
         
-        emptyTableLabel.frame = CGRect(x: 0, y: self.view.bounds.midY + (self.view.bounds.height / 9), width: self.view.bounds.width, height: 35)
-        
+        emptyTableLabel.frame = CGRect(x: 0, y: self.view.bounds.midY, width: self.view.bounds.width, height: 35)
         noFavoriteStopsButton.frame.origin = CGPoint(x: emptyTableLabel.frame.midX - (noFavoriteStopsButton.bounds.width / 2), y: emptyTableLabel.frame.maxY)
         noFavoriteStopsButton.sizeToFit()
         
         let bgView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height))
         bgView.addSubview(noFavoriteStopsButton)
         bgView.addSubview(emptyTableLabel)
-        
         self.tableView.backgroundView = bgView
         self.tableView.separatorStyle = .None
     }

@@ -206,9 +206,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" id="63e-FB-rZj">
+                            <rect key="frame" x="0.0" y="64" width="600" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits"/>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="StopCell" id="LYj-cH-odc" customClass="BusInfoTableViewCell" customModule="alertLT" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="92" width="600" height="44"/>
+                                <rect key="frame" x="0.0" y="136" width="600" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="LYj-cH-odc" id="q6F-Pb-SkQ">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
@@ -289,6 +294,9 @@
                             <outlet property="delegate" destination="zeC-pg-PfU" id="QdP-4I-SUq"/>
                         </connections>
                     </tableView>
+                    <connections>
+                        <outlet property="searchBar" destination="63e-FB-rZj" id="Ymp-NS-R2O"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="I3g-Y5-4lP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

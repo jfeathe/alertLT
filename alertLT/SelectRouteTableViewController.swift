@@ -41,16 +41,7 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         // Dispose of any resources that can be recreated.
     }
     
-    // MARK: - Search Bar Delegate Methods
-    
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.characters.count > 0 {
-            initalizeFetchedResultsController(searchText)
-        }
-    }
-    
     // MARK: - Table view data source
-    
     private func initalizeFetchedResultsController() {
         initalizeFetchedResultsController(nil)
     }
@@ -64,7 +55,7 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         routesRequest.sortDescriptors = [nameSort, directionSort]
         
         if let searchString = searchBarString {
-            routesRequest.predicate = NSPredicate(format: "name CONTAINS[c] %@ OR ", searchString)
+            routesRequest.predicate = NSPredicate(format: "name CONTAINS[c] %@ OR number.stringValue CONTAINS[c] %@", searchString, searchString)
         }
         
         if let context = managedObjectContex {
@@ -94,7 +85,7 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         }
         
         if let name = route.name, number = route.number, direction = route.direction {
-            busInfoCell.primaryTextLabel.text = String(number).characters.count < 2 ? "0" + String(number) : String(number)
+            busInfoCell.primaryTextLabel.text = String(number)
             busInfoCell.secondaryTextLabel.text = "\(name) - \(direction.substringToIndex(direction.startIndex.successor()))"
         }
     }
@@ -114,6 +105,17 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
             tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
         }
     }
+    
+    // MARK: - Search Bar Delegate Methods
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.characters.count > 0 {
+            initalizeFetchedResultsController(searchText)
+        } else {
+            initalizeFetchedResultsController(nil)
+        }
+    }
+    
     
     // MARK: - Navigation
 
