@@ -34,6 +34,10 @@ class AddFavoriteStopViewController: UIViewController {
     private func updateLabelsUsingStopInformation() {
         if let stopNumber = stop?.number, stopName = stop?.actualName {
             stopLabel?.text = "\(stopNumber) - \(stopName)"
+            
+            if let customStopName = stop?.customName {
+                nicknameTextField?.text = customStopName
+            }
         }
     }
     

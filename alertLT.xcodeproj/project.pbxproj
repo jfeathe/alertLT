@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		944A35191D72556E004C518B /* AddFavoriteStopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 944A35181D72556E004C518B /* AddFavoriteStopViewController.swift */; };
-		945D4CE31D738B2C00F35C21 /* FavoriteStopTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 945D4CE21D738B2C00F35C21 /* FavoriteStopTableViewCell.swift */; };
 		9464B31E1D6CA70A00B079BF /* BusRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3181D6CA70A00B079BF /* BusRoute.swift */; };
 		9464B31F1D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3191D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift */; };
 		9464B3201D6CA70A00B079BF /* BusStop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31A1D6CA70A00B079BF /* BusStop.swift */; };
@@ -16,8 +15,6 @@
 		9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */; };
 		9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31D1D6CA70A00B079BF /* WebWatch.swift */; };
 		9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3261D6D197500B079BF /* DatabaseUpdater.swift */; };
-		947247901D71259C00649D3F /* SelectRouteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */; };
-		947247971D713C5500649D3F /* StopInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947247961D713C5500649D3F /* StopInfoTableViewCell.swift */; };
 		947247991D71F09400649D3F /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947247981D71F09400649D3F /* extensions.swift */; };
 		9472479B1D722EAF00649D3F /* SelectStopTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */; };
 		947E36B31D6E0B6B00D2D914 /* SelectRouteTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */; };
@@ -26,11 +23,14 @@
 		9496C6B21D6B8303008DD709 /* alertLT.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9496C6B01D6B8303008DD709 /* alertLT.xcdatamodeld */; };
 		9496C6B41D6B8303008DD709 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9496C6B31D6B8303008DD709 /* Assets.xcassets */; };
 		9496C6B71D6B8303008DD709 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9496C6B51D6B8303008DD709 /* LaunchScreen.storyboard */; };
+		94CD92C91D74B37200F44CCB /* ArrivalTimesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94CD92C81D74B37200F44CCB /* ArrivalTimesTableViewController.swift */; };
+		94CD92CD1D74F5FE00F44CCB /* BusInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94CD92CC1D74F5FE00F44CCB /* BusInfoTableViewCell.swift */; };
+		94CD92D01D75019800F44CCB /* FetchedResultsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94CD92CF1D75019800F44CCB /* FetchedResultsTableViewController.swift */; };
+		94CD92D21D7518DC00F44CCB /* ArrivalTimeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94CD92D11D7518DC00F44CCB /* ArrivalTimeTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		944A35181D72556E004C518B /* AddFavoriteStopViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFavoriteStopViewController.swift; sourceTree = "<group>"; };
-		945D4CE21D738B2C00F35C21 /* FavoriteStopTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteStopTableViewCell.swift; sourceTree = "<group>"; };
 		9464B3181D6CA70A00B079BF /* BusRoute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BusRoute.swift; sourceTree = "<group>"; };
 		9464B3191D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BusRoute+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		9464B31A1D6CA70A00B079BF /* BusStop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BusStop.swift; sourceTree = "<group>"; };
@@ -38,8 +38,6 @@
 		9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesTableViewController.swift; sourceTree = "<group>"; };
 		9464B31D1D6CA70A00B079BF /* WebWatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebWatch.swift; sourceTree = "<group>"; };
 		9464B3261D6D197500B079BF /* DatabaseUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseUpdater.swift; sourceTree = "<group>"; };
-		9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectRouteTableViewCell.swift; sourceTree = "<group>"; };
-		947247961D713C5500649D3F /* StopInfoTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StopInfoTableViewCell.swift; sourceTree = "<group>"; };
 		947247981D71F09400649D3F /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectStopTableViewController.swift; sourceTree = "<group>"; };
 		947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectRouteTableViewController.swift; sourceTree = "<group>"; };
@@ -50,6 +48,10 @@
 		9496C6B31D6B8303008DD709 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9496C6B61D6B8303008DD709 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9496C6B81D6B8303008DD709 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		94CD92C81D74B37200F44CCB /* ArrivalTimesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrivalTimesTableViewController.swift; sourceTree = "<group>"; };
+		94CD92CC1D74F5FE00F44CCB /* BusInfoTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BusInfoTableViewCell.swift; sourceTree = "<group>"; };
+		94CD92CF1D75019800F44CCB /* FetchedResultsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchedResultsTableViewController.swift; sourceTree = "<group>"; };
+		94CD92D11D7518DC00F44CCB /* ArrivalTimeTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrivalTimeTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,18 +65,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		947247951D7137F700649D3F /* Favorite Stop Files */ = {
+		947247951D7137F700649D3F /* Adding Favorite Stop Files */ = {
 			isa = PBXGroup;
 			children = (
 				9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */,
 				947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */,
-				9472478F1D71259C00649D3F /* SelectRouteTableViewCell.swift */,
 				9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */,
-				945D4CE21D738B2C00F35C21 /* FavoriteStopTableViewCell.swift */,
-				947247961D713C5500649D3F /* StopInfoTableViewCell.swift */,
 				944A35181D72556E004C518B /* AddFavoriteStopViewController.swift */,
 			);
-			name = "Favorite Stop Files";
+			name = "Adding Favorite Stop Files";
 			sourceTree = "<group>";
 		};
 		9496C69D1D6B8303008DD709 = {
@@ -96,12 +95,15 @@
 		9496C6A81D6B8303008DD709 /* alertLT */ = {
 			isa = PBXGroup;
 			children = (
+				94CD92CF1D75019800F44CCB /* FetchedResultsTableViewController.swift */,
 				9496C6AD1D6B8303008DD709 /* Main.storyboard */,
+				94CD92CC1D74F5FE00F44CCB /* BusInfoTableViewCell.swift */,
 				947247981D71F09400649D3F /* extensions.swift */,
 				9464B31D1D6CA70A00B079BF /* WebWatch.swift */,
 				9496C6A91D6B8303008DD709 /* AppDelegate.swift */,
 				9464B3261D6D197500B079BF /* DatabaseUpdater.swift */,
-				947247951D7137F700649D3F /* Favorite Stop Files */,
+				94CD92CE1D75014E00F44CCB /* Arrival Time Files */,
+				947247951D7137F700649D3F /* Adding Favorite Stop Files */,
 				9496C6BF1D6B862A008DD709 /* Supporting Files */,
 				9496C6BE1D6B85A5008DD709 /* Core Data */,
 			);
@@ -128,6 +130,15 @@
 				9496C6B51D6B8303008DD709 /* LaunchScreen.storyboard */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		94CD92CE1D75014E00F44CCB /* Arrival Time Files */ = {
+			isa = PBXGroup;
+			children = (
+				94CD92C81D74B37200F44CCB /* ArrivalTimesTableViewController.swift */,
+				94CD92D11D7518DC00F44CCB /* ArrivalTimeTableViewCell.swift */,
+			);
+			name = "Arrival Time Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -201,21 +212,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				947247971D713C5500649D3F /* StopInfoTableViewCell.swift in Sources */,
 				9464B3201D6CA70A00B079BF /* BusStop.swift in Sources */,
 				9464B31F1D6CA70A00B079BF /* BusRoute+CoreDataProperties.swift in Sources */,
-				945D4CE31D738B2C00F35C21 /* FavoriteStopTableViewCell.swift in Sources */,
+				94CD92C91D74B37200F44CCB /* ArrivalTimesTableViewController.swift in Sources */,
 				9472479B1D722EAF00649D3F /* SelectStopTableViewController.swift in Sources */,
 				947247991D71F09400649D3F /* extensions.swift in Sources */,
+				94CD92CD1D74F5FE00F44CCB /* BusInfoTableViewCell.swift in Sources */,
 				9464B3211D6CA70A00B079BF /* BusStop+CoreDataProperties.swift in Sources */,
 				944A35191D72556E004C518B /* AddFavoriteStopViewController.swift in Sources */,
 				9464B31E1D6CA70A00B079BF /* BusRoute.swift in Sources */,
+				94CD92D21D7518DC00F44CCB /* ArrivalTimeTableViewCell.swift in Sources */,
 				9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */,
 				9496C6AA1D6B8303008DD709 /* AppDelegate.swift in Sources */,
 				9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */,
-				947247901D71259C00649D3F /* SelectRouteTableViewCell.swift in Sources */,
 				947E36B31D6E0B6B00D2D914 /* SelectRouteTableViewController.swift in Sources */,
 				9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */,
+				94CD92D01D75019800F44CCB /* FetchedResultsTableViewController.swift in Sources */,
 				9496C6B21D6B8303008DD709 /* alertLT.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

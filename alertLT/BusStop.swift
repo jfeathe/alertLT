@@ -33,5 +33,12 @@ class BusStop: NSManagedObject {
         
         return nil
     }
+    
+    func asWebWatchStop() -> WebWatchStop? {
+        guard let name = self.actualName, number = self.number else {
+            return nil
+        }
+        return WebWatchStop(name: name, number: Int(number))
+    }
 
 }

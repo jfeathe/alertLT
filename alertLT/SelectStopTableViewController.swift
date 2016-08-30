@@ -9,16 +9,11 @@
 import UIKit
 import CoreData
 
-class SelectStopTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+class SelectStopTableViewController: FetchedResultsTableViewController {
     
     // MARK: Model
     var route: BusRoute?
     var managedObjectContex: NSManagedObjectContext?
-    var fetchedResultsController: NSFetchedResultsController? {
-        didSet {
-            fetchedResultsController?.delegate = self
-        }
-    }
     
     enum Constants {
         static let StopCellIdentifier = "StopCell"
@@ -57,14 +52,6 @@ class SelectStopTableViewController: UITableViewController, NSFetchedResultsCont
         }
     }
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return fetchedResultsController?.sections?.count ?? 1
-    }
-    
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchedResultsController?.sections?[section].numberOfObjects ?? 0
-    }
-
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(Constants.StopCellIdentifier, forIndexPath: indexPath)
         configureCell(cell, forIndexPath: indexPath)
@@ -72,35 +59,18 @@ class SelectStopTableViewController: UITableViewController, NSFetchedResultsCont
     }
     
     func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+        guard let cell = cell as? BusInfoTableViewCell,
+            let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop else {
+            return
+        }
         
-        if let cell = cell as? SelectStopTableViewCell,
-            let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop {
-            cell.busStop = stop
+        if let stopName = stop.actualName, stopNumber = stop.number {
+            cell.primaryTextLabel.text = stopName
+            cell.secondaryTextLabel.text = "Stop: \(stopNumber)"
         }
     }
     
     // MARK - Fetched Results Controller Delegate Methods
-
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
-        tableView.beginUpdates()
-    }
-    
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        tableView.endUpdates()
-    }
-    
-    func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
-        switch type {
-        case .Insert:
-            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Delete:
-            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Move:
-            break
-        case .Update:
-            break
-        }
-    }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
@@ -115,8 +85,6 @@ class SelectStopTableViewController: UITableViewController, NSFetchedResultsCont
             tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
         }
     }
-
-
     
     // MARK: - Navigation
 
@@ -124,9 +92,12 @@ class SelectStopTableViewController: UITableViewController, NSFetchedResultsCont
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
         if segue.identifier == Constants.CustomizeFavoriteRouteSegue {
-            if let desinationVC = segue.destinationViewController.contentViewController as? AddFavoriteStopViewController {
+            if let desinationVC = segue.destinationViewController.contentViewController as? AddFavoriteStopViewController,
+            sendingCell = sender as? BusInfoTableViewCell{
                 desinationVC.route = route
-                desinationVC.stop = (sender as? SelectStopTableViewCell)?.busStop
+                if let sendingIndexPath = tableView.indexPathForCell(sendingCell) {
+                    desinationVC.stop = fetchedResultsController?.objectAtIndexPath(sendingIndexPath) as? BusStop
+                }
             }
         }
     }

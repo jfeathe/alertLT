@@ -41,9 +41,9 @@ class WebWatchScrapper {
         //so we need to check each seperation and see which ones contain routes
         for var seperation in seperations {
             //if the seperation has this prefix we know it must contain a route
-            if seperation.hasPrefix("\r\n<a href=\"MobileAda.aspx?r") {
+            if seperation.hasPrefix("\r\n<a href=\"MobileAda.aspx?r=") {
                 //Trim the begining of the <a> html tag
-                seperation.removePrefix("\r\n<a href=\"MobileAda.aspx?r")
+                seperation.removePrefix("\r\n<a href=\"MobileAda.aspx?r=")
                 //Trim the ending of the <a> html tag
                 seperation.removeSuffix("</a>")
                 //What we are left with is the routeNumber followed by the route name with "\>" in between
@@ -62,7 +62,7 @@ class WebWatchScrapper {
     /// Returns a tuple with both directions that a LTC route travels which is retrived from the webwatch website.
     static func fetchDirectionsForRoute(route: WebWatchRoute) throws -> (firstDirection: WebWatchDirection, secondDirection: WebWatchDirection) {
         
-        let directionsURLString = WebWatchConstants.queryPrefix + "r=" + String(route.number)
+        let directionsURLString = "\(WebWatchConstants.queryPrefix)r=\(route.number)"
         
         guard let directionsURL = NSURL(string: directionsURLString) else {
             throw WebWatchError.InvalidURL
@@ -94,8 +94,7 @@ class WebWatchScrapper {
     /// If the array is returned as nil it means that the route is not in service and we cannot get a list of stops.
     static func fetchListOfStopsForRoute(route: WebWatchRoute, forDirection direction: WebWatchDirection) throws -> [WebWatchStop]? {
         
-        let stopsURLString = WebWatchConstants.queryPrefix + "r=" + String(route.number) + "&d=" + String(direction.rawValue)
-        
+        let stopsURLString = "\(WebWatchConstants.queryPrefix)r=\(route.number)&d=\(direction.rawValue)"
         guard let stopsURL = NSURL(string: stopsURLString) else {
             throw WebWatchError.InvalidURL
         }
@@ -121,10 +120,10 @@ class WebWatchScrapper {
         for var seperation in seperations {
             
             //if the seperation has this prefix we know it must contain a stop
-            if seperation.hasPrefix("\r\n<a href=\"MobileAda.aspx?r") {
+            if seperation.hasPrefix("\r\n<a href=\"MobileAda.aspx?r=") {
                 
                 //Trim the begining of the <a> html tag
-                seperation.removePrefix("\r\n<a href=\"MobileAda.aspx?r")
+                seperation.removePrefix("\r\n<a href=\"MobileAda.aspx?r=")
                 //Trim the ending of the <a> html tag
                 seperation.removeSuffix("</a>")
                 //What we are left with is the route, direction and stop followed by the stop name with "\>" in between
@@ -140,12 +139,43 @@ class WebWatchScrapper {
                 if let numOfStop = Int(values[0].substringWithRange(values[0].endIndex.advancedBy(numberOfDigitsInStopNumber)..<values[0].endIndex)) {
                     stops.append(WebWatchStop(name: nameOfStop, number: numOfStop))
                 }
-                
             }
-    
         }
         return stops.count > 0 ? stops : nil
     }
+    
+    static func fetchArrivalTimesForRoute(route: WebWatchRoute, forDirection direction: WebWatchDirection, forStop stop: WebWatchStop) throws -> String? {
+        
+        let arrivalTimesURLString = "\(WebWatchConstants.queryPrefix)r=\(route.number)&d=\(direction.rawValue)&s=\(stop.number)"
+        guard let arrivalTimesURL = NSURL(string: arrivalTimesURLString) else {
+            throw WebWatchError.CannotGetContentsOfURL
+        }
+        
+        do {
+            let contentsOfURL = try String(contentsOfURL: arrivalTimesURL)
+            return scrapeArrivalTimesFromWebWatchPage(contentsOfURL)
+        } catch {
+            throw WebWatchError.InvalidURL
+        }
+    }
+
+    
+    private static func scrapeArrivalTimesFromWebWatchPage(htmlPage: String) -> String? {
+        
+        let seperations = htmlPage.componentsSeparatedByString("<br>")
+        var arrivalTimes = ""
+        for seperation in seperations {
+            if seperation.containsString("A.M") || seperation.containsString("P.M") {
+                var time = seperation
+                time.removeExcessSpaces()
+                time.removePrefix("\r\n")
+                arrivalTimes = arrivalTimes + time + "\n"
+            }
+        }
+        arrivalTimes.removeSuffix("\n")
+        return arrivalTimes.characters.count > 0 ? arrivalTimes : nil
+    }
+
 }
 
 enum WebWatchError: ErrorType {

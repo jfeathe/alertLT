@@ -10,48 +10,66 @@ import UIKit
 import CoreData
 
 
-class FavoritesTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+class FavoritesTableViewController: FetchedResultsTableViewController {
     
     enum Constants {
         static let SelectRouteSegue = "SelectRouteSegue"
+        static let ArrivalTimesSegue = "ArrivalTimesSegue"
         static let FavoriteStopCell = "FavoriteStopCell"
     }
     
     //UI Elements for the Loading Data Message
-    private var loadingDataSpinner = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-    private var loadingDataLable:  UILabel = {
-        let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.text = "Downloading Route Information \n This may take a moment."
-        label.numberOfLines = 2
+    
+    let emptyTableLabel: UILabel = {
+       let label =  UILabel()
+        label.text = "You dont have any favorite stops 🙁"
+        label.textColor = UIColor.grayColor()
         label.textAlignment = .Center
+        label.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
         return label
+    }()
+    let noFavoriteStopsButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Find a stop!", forState: .Normal)
+        button.setTitleColor(UIColor.blueColor(), forState: .Normal)
+        button.setTitleColor(UIColor.greenColor(), forState: .Highlighted)
+        button.titleLabel?.textAlignment = .Center
+        button.titleLabel?.font = UIFont.preferredFontForTextStyle(UIFontTextStyleSubheadline)
+        return button
     }()
     
     // MARK: Model
     
     var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
     
-    var fetchedResultsController: NSFetchedResultsController? {
-        didSet {
-            fetchedResultsController?.delegate = self
-        }
-    }
     
-    // MARK: Updating Database Methods
+    
+    // MARK: Updating UI messages
     func showLoadingMessage() {
-        self.navigationController?.view.addSubview(loadingDataLable)
-        self.navigationController?.view.addSubview(loadingDataSpinner)
-        loadingDataLable.hidden = false
-        loadingDataSpinner.hidden = false
-        loadingDataSpinner.startAnimating()
-        tableView?.scrollEnabled = false
+        
     }
     
     private func hideLoadingMessage() {
-        loadingDataLable.hidden = true
-        loadingDataSpinner.hidden = true
-        tableView?.scrollEnabled = true
+    }
+    
+    private func showNoFavoritesMessage() {
+        
+        emptyTableLabel.frame = CGRect(x: 0, y: self.view.bounds.midY + (self.view.bounds.height / 9), width: self.view.bounds.width, height: 35)
+        
+        noFavoriteStopsButton.frame.origin = CGPoint(x: emptyTableLabel.frame.midX - (noFavoriteStopsButton.bounds.width / 2), y: emptyTableLabel.frame.maxY)
+        noFavoriteStopsButton.sizeToFit()
+        
+        let bgView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height))
+        bgView.addSubview(noFavoriteStopsButton)
+        bgView.addSubview(emptyTableLabel)
+        
+        self.tableView.backgroundView = bgView
+        self.tableView.separatorStyle = .None
+    }
+    
+    private func hideNoFavoritesMessage() {
+        self.tableView.separatorStyle = .SingleLine
+        self.tableView.backgroundView = nil
     }
     
     ///Updates the database using a DatabaseUpdater instance. Pass in an array of stops if you want to limit which routes are updated
@@ -74,7 +92,6 @@ class FavoritesTableViewController: UITableViewController, NSFetchedResultsContr
             }
             dispatch_async(dispatch_get_main_queue()) {
                 weakSelf?.hideLoadingMessage()
-                dbUpdater.printDatabaseContents()
             }
         }
     }
@@ -86,6 +103,7 @@ class FavoritesTableViewController: UITableViewController, NSFetchedResultsContr
         super.viewDidLoad()
         self.navigationItem.rightBarButtonItem = self.editButtonItem()
         editButtonItem().tintColor = UIColor.whiteColor()
+        noFavoriteStopsButton.addTarget(self, action: #selector(FavoritesTableViewController.noFavoriteStopsButtonPressed(_:)), forControlEvents: [.TouchUpInside])
         initalizeFetchedResultsController()
     }
     
@@ -96,19 +114,6 @@ class FavoritesTableViewController: UITableViewController, NSFetchedResultsContr
             updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: nil)
         } else if let routesThatAreMissingInformation = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
             updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: routesThatAreMissingInformation)
-        }
-        dbUpdater.printDatabaseContents()
-    }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        if let viewCenter = self.navigationController?.view.center {
-            loadingDataSpinner.center = CGPoint(x: viewCenter.x, y: viewCenter.y - loadingDataLable.frame.height)
-        }
-        if let viewWidth = self.navigationController?.view.bounds.width,
-            let viewCenter = self.navigationController?.view.center {
-            loadingDataLable.frame.size = CGSize(width: viewWidth, height: 40)
-            loadingDataLable.center = viewCenter
         }
     }
 
@@ -135,13 +140,15 @@ class FavoritesTableViewController: UITableViewController, NSFetchedResultsContr
         }
 
     }
-
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return fetchedResultsController?.sections?.count ?? 1
-    }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchedResultsController?.sections?[section].numberOfObjects ?? 0
+        if let numRows = fetchedResultsController?.sections?[section].numberOfObjects where numRows > 0 {
+            hideNoFavoritesMessage()
+            return numRows
+        } else {
+            showNoFavoritesMessage()
+            return 0
+        }
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -151,54 +158,57 @@ class FavoritesTableViewController: UITableViewController, NSFetchedResultsContr
     }
     
     func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
-        if let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop {
-            if let cell = cell as? FavoriteStopTableViewCell {
-                cell.stop = stop
+        
+        guard let favoriteStopCell = cell as? BusInfoTableViewCell,
+            stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop else {
+                return
+        }
+        
+        if let customName = stop.customName where customName != "" {
+            favoriteStopCell.primaryTextLabel.text = customName
+        } else if let actualName = stop.actualName {
+            favoriteStopCell.primaryTextLabel.text = actualName
+        }
+        
+        guard let unsortedRoutes = stop.routes?.allObjects as? [BusRoute] else {
+            favoriteStopCell.secondaryTextLabel.text = "No routes found that stop at this stop"
+            return
+        }
+        
+        let routes = unsortedRoutes.sort { Int($0.number!) < Int($1.number!) }
+        
+        var listOfRoutesString = ""
+        for (index, route) in routes.enumerate() {
+            if index > 0 {
+                listOfRoutesString += ", "
+            }
+            if let direction = route.direction, let number = route.number  {
+                listOfRoutesString += "\(number)\(direction.substringToIndex(direction.startIndex.successor()))"
             }
         }
+        favoriteStopCell.secondaryTextLabel.text = listOfRoutesString
+        
     }
-
     
-    // Override to support editing the table view.
+    //Editing the tableview
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
-            // Delete the row from the data source
+            if let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop {
+                stop.favorited = NSNumber(bool: false)
+                stop.customName = nil
+                _ = try? fetchedResultsController?.performFetch()
+                _ = try? managedObjectContex?.save()
+            }
+            
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
     
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-    
     // MARK - Fetched Results Controller Delegate Methods
     
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
-        tableView.beginUpdates()
-    }
-    
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        tableView.endUpdates()
-    }
-    
-    func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
-        switch type {
-        case .Insert:
-            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Delete:
-            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Move:
-            break
-        case .Update:
-            break
-        }
-    }
-    
+
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
@@ -214,6 +224,18 @@ class FavoritesTableViewController: UITableViewController, NSFetchedResultsContr
     }
     
     // MARK: - Navigation
+    
+    @IBAction func cancelAddingFavoriteStop(segue:UIStoryboardSegue) {
+    }
+    
+    @IBAction func addFavoriteStop(segue: UIStoryboardSegue) {
+        _ = try? managedObjectContex?.save()
+        
+    }
+    
+    @objc private func noFavoriteStopsButtonPressed(sender: UIButton) {
+        performSegueWithIdentifier(Constants.SelectRouteSegue, sender: sender)
+    }
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -222,14 +244,13 @@ class FavoritesTableViewController: UITableViewController, NSFetchedResultsContr
                 selectRouteTVC.managedObjectContex = managedObjectContex
                 selectRouteTVC.title = "Select a Route"
             }
+        } else if segue.identifier == Constants.ArrivalTimesSegue {
+            if let arrivalTimesTVC = segue.destinationViewController.contentViewController as? ArrivalTimesTableViewController,
+            sendingCell = sender as? BusInfoTableViewCell {
+                if let sendingIndexPath = tableView.indexPathForCell(sendingCell) {
+                    arrivalTimesTVC.stop = fetchedResultsController?.objectAtIndexPath(sendingIndexPath) as? BusStop
+                }
+            }
         }
-    }
-    
-    @IBAction func cancelAddingFavoriteStop(segue:UIStoryboardSegue) {
-    }
-    
-    @IBAction func addFavoriteStop(segue: UIStoryboardSegue) {
-        _ = try? managedObjectContex?.save()
-
     }
 }

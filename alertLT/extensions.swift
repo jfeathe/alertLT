@@ -12,16 +12,30 @@ import UIKit
 extension String {
 
     mutating func removePrefix(string: String) {
-        self.removeRange(self.startIndex...self.startIndex.advancedBy(string.characters.count))
+        if self.hasPrefix(string) {
+            self.removeRange(self.startIndex..<self.startIndex.advancedBy(string.characters.count))
+        }
     }
     
     mutating func removeSuffix(string: String) {
-        self.removeRange(self.endIndex.advancedBy(-string.characters.count)..<self.endIndex)
+        if self.hasSuffix(string) {
+            self.removeRange(self.endIndex.advancedBy(-string.characters.count)..<self.endIndex)
+        }
     }
     
     mutating func removeString(string: String) {
-        let components = self.componentsSeparatedByString(string)
-        self =  components.joinWithSeparator("")
+        if self.containsString(string) {
+            let components = self.componentsSeparatedByString(string)
+            self =  components.joinWithSeparator("")
+        }
+    }
+    
+    mutating func removeExcessSpaces() {
+        let characters = self.characters
+        //Start with empty string. If the previous character was a space and the next character to add is a space
+        //Dont do anything. Otherwise it is safe to append the next character }
+        let result: String = characters.reduce("")  { ($0.hasSuffix(" ") && String($1) == " ") ? $0 : $0.stringByAppendingString(String($1)) }
+        self = result
     }
 }
 
