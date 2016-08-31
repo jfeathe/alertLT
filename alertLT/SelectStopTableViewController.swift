@@ -61,6 +61,7 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
             do {
                 try fetchedResultsController?.performFetch()
                 tableView.reloadData()
+                checkForNoStopData()
             } catch {
                 fatalError("Failed to initialize FetchedResultsController: \(error)")
             }
@@ -68,7 +69,18 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
             fatalError("SelectRouteTVC does not have instance of managedObjectContext")
         }
     }
-
+    
+    private func checkForNoStopData() {
+        if fetchedResultsController?.sections?[0].numberOfObjects == 0 {
+            let alert = UIAlertController(title: "No Stop Data for this Route", message: "This stop is currently not in service and we do not have any stop information saved. Please try again when this stop is in service.", preferredStyle: .Alert)
+            
+            alert.addAction(UIAlertAction(title: "Okay", style: .Default, handler: { [weak weakSelf = self] (alert: UIAlertAction) in  weakSelf?.navigationController?.popViewControllerAnimated(true)} ))
+            
+            
+            presentViewController(alert, animated: true, completion: nil )
+        }
+    }
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(Constants.StopCellIdentifier, forIndexPath: indexPath)
         configureCell(cell, forIndexPath: indexPath)

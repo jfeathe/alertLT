@@ -25,6 +25,10 @@ class DatabaseUpdater {
         static let dateLastUpdatedKey = "DateLastUpdated"
     }
     
+    var lastUpdatedDate: NSDate? {
+        return defaults.objectForKey(Constants.dateLastUpdatedKey) as? NSDate
+    }
+    
     init(context: NSManagedObjectContext?) {
         self.managedObjectContex = context
     }
