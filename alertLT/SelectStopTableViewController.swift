@@ -29,6 +29,7 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
     override func viewDidLoad() {
         super.viewDidLoad()
         initalizeFetchedResultsController()
+        checkForNoStopData()
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -61,7 +62,6 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
             do {
                 try fetchedResultsController?.performFetch()
                 tableView.reloadData()
-                checkForNoStopData()
             } catch {
                 fatalError("Failed to initialize FetchedResultsController: \(error)")
             }

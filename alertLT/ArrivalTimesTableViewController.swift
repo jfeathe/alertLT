@@ -49,7 +49,7 @@ class ArrivalTimesTableViewController: UITableViewController {
                 }
             }
             dispatch_async(dispatch_get_main_queue()) {
-                weakSelf?.arrivalTimesForEachRoute = arrivals.sort { $0.0 > $1.0 }
+                weakSelf?.arrivalTimesForEachRoute = arrivals.sort {  $0.0 == nil   || ($0.0 < $1.0) }
                 let dateFormatter = NSDateFormatter()
                 dateFormatter.dateFormat = "MMM d, h:mm a"
                 weakSelf?.refreshControl?.attributedTitle = NSAttributedString(string: "Last Updated on \(dateFormatter.stringFromDate(NSDate()))")

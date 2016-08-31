@@ -15,6 +15,7 @@
 		9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */; };
 		9464B3231D6CA70A00B079BF /* WebWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B31D1D6CA70A00B079BF /* WebWatch.swift */; };
 		9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9464B3261D6D197500B079BF /* DatabaseUpdater.swift */; };
+		946894B21D7757C30001580A /* QuickSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946894B11D7757C30001580A /* QuickSearchTableViewController.swift */; };
 		947247991D71F09400649D3F /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947247981D71F09400649D3F /* extensions.swift */; };
 		9472479B1D722EAF00649D3F /* SelectStopTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */; };
 		947E36B31D6E0B6B00D2D914 /* SelectRouteTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */; };
@@ -38,6 +39,7 @@
 		9464B31C1D6CA70A00B079BF /* FavoritesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesTableViewController.swift; sourceTree = "<group>"; };
 		9464B31D1D6CA70A00B079BF /* WebWatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebWatch.swift; sourceTree = "<group>"; };
 		9464B3261D6D197500B079BF /* DatabaseUpdater.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseUpdater.swift; sourceTree = "<group>"; };
+		946894B11D7757C30001580A /* QuickSearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuickSearchTableViewController.swift; sourceTree = "<group>"; };
 		947247981D71F09400649D3F /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		9472479A1D722EAF00649D3F /* SelectStopTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectStopTableViewController.swift; sourceTree = "<group>"; };
 		947E36B21D6E0B6B00D2D914 /* SelectRouteTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectRouteTableViewController.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 			children = (
 				94CD92CF1D75019800F44CCB /* FetchedResultsTableViewController.swift */,
 				9496C6AD1D6B8303008DD709 /* Main.storyboard */,
+				946894B11D7757C30001580A /* QuickSearchTableViewController.swift */,
 				94CD92CC1D74F5FE00F44CCB /* BusInfoTableViewCell.swift */,
 				947247981D71F09400649D3F /* extensions.swift */,
 				9464B31D1D6CA70A00B079BF /* WebWatch.swift */,
@@ -223,6 +226,7 @@
 				9464B31E1D6CA70A00B079BF /* BusRoute.swift in Sources */,
 				94CD92D21D7518DC00F44CCB /* ArrivalTimeTableViewCell.swift in Sources */,
 				9464B3271D6D197500B079BF /* DatabaseUpdater.swift in Sources */,
+				946894B21D7757C30001580A /* QuickSearchTableViewController.swift in Sources */,
 				9496C6AA1D6B8303008DD709 /* AppDelegate.swift in Sources */,
 				9464B3221D6CA70A00B079BF /* FavoritesTableViewController.swift in Sources */,
 				947E36B31D6E0B6B00D2D914 /* SelectRouteTableViewController.swift in Sources */,

@@ -20,9 +20,9 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     
     //UI Elements for the Loading Data Message
     
-    let emptyTableLabel: UILabel = {
+    let noFavoriteStopsLabel: UILabel = {
        let label =  UILabel()
-        label.text = "You dont have any favorite stops  🙁"
+        label.text = "You do not have any favorite stops  🙁"
         label.textColor = UIColor.grayColor()
         label.textAlignment = .Center
         label.font = UIFont.preferredFontForTextStyle(UIFontTextStyleHeadline)
@@ -40,37 +40,101 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     
     // MARK: Model
     
-    var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
+    static var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
     
+    // MARK: Updating the background view UI for displaying messages to the user
+
     
-    
-    // MARK: Updating UI messages
     func showLoadingMessage() {
+        
+        if let navigationItems = navigationItem.rightBarButtonItems {
+            for item in navigationItems {
+                item.enabled = false
+            }
+        }
+        
+        if let tabBarItems = tabBarController?.tabBar.items {
+            for item in tabBarItems {
+                item.enabled = false
+            }
+        }
+        
+        noFavoriteStopsLabel.hidden = true
+        noFavoriteStopsButton.hidden = true
+        
+        refreshControl?.attributedTitle = NSAttributedString(string: "Downloading the latest stop information 📡")
+        self.refreshControl!.beginRefreshing()
         
     }
     
-    private func hideLoadingMessage() {
+    private func hideLoadingMessage(dbUpdater: DatabaseUpdater) {
+        
+        if let items = navigationItem.rightBarButtonItems {
+            for item in items {
+                item.enabled = true
+            }
+        }
+        
+        if let tabBarItems = tabBarController?.tabBar.items {
+            for item in tabBarItems {
+                item.enabled = true
+            }
+        }
+        
+        noFavoriteStopsLabel.hidden = false
+        noFavoriteStopsButton.hidden = false
+        
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "MMM d, h:mm a"
+        
+        if let lastUpdate = dbUpdater.lastUpdatedDate {
+            refreshControl?.attributedTitle = NSAttributedString(string: "Last Updated on \(dateFormatter.stringFromDate(lastUpdate))")
+        } else {
+           refreshControl?.attributedTitle = NSAttributedString(string: "Pull to update" )
+        }
+        self.refreshControl?.endRefreshing()
     }
     
     private func showNoFavoritesMessage() {
-        
-        emptyTableLabel.frame = CGRect(x: 0, y: self.view.bounds.midY, width: self.view.bounds.width, height: 35)
-        noFavoriteStopsButton.frame.origin = CGPoint(x: emptyTableLabel.frame.midX - (noFavoriteStopsButton.bounds.width / 2), y: emptyTableLabel.frame.maxY)
         noFavoriteStopsButton.sizeToFit()
+        noFavoriteStopsLabel.frame = CGRect(x: 0, y: self.view.bounds.midY, width: self.view.bounds.width, height: 35)
+        noFavoriteStopsButton.frame.origin = CGPoint(
+            x: noFavoriteStopsLabel.frame.midX - (noFavoriteStopsButton.bounds.width / 2),
+            y: noFavoriteStopsLabel.frame.maxY
+        )
+        self.tableView.backgroundView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height))
         
-        let bgView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height))
-        bgView.addSubview(noFavoriteStopsButton)
-        bgView.addSubview(emptyTableLabel)
-        self.tableView.backgroundView = bgView
+        self.tableView.backgroundView?.addSubview(noFavoriteStopsButton)
+        self.tableView.backgroundView?.addSubview(noFavoriteStopsLabel)
         self.tableView.separatorStyle = .None
     }
     
     private func hideNoFavoritesMessage() {
         self.tableView.separatorStyle = .SingleLine
-        self.tableView.backgroundView = nil
+        noFavoriteStopsButton.removeFromSuperview()
+        noFavoriteStopsLabel.removeFromSuperview()
     }
     
     ///Updates the database using a DatabaseUpdater instance. Pass in an array of stops if you want to limit which routes are updated
+    
+    @objc private func checkForUpdates() {
+        let dbUpdater = DatabaseUpdater(context: FavoritesTableViewController.managedObjectContex)
+        if dbUpdater.databaseShouldBeUpdated() {
+            updateDatabaseUsing(dbUpdater)
+        } else if let routesThatAreMissingInformation = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
+            updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: routesThatAreMissingInformation)
+        }
+    }
+    
+    @objc private func updateManualy() {
+        let dbUpdater = DatabaseUpdater(context: FavoritesTableViewController.managedObjectContex)
+        updateDatabaseUsing(dbUpdater)
+    }
+    
+    private func updateDatabaseUsing(dbUpdater: DatabaseUpdater) {
+        updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: nil)
+    }
+    
     private func updateDatabaseUsing(dbUpdater: DatabaseUpdater, onlyUpdateRoutes routesToUpdate: [BusRoute]?) {
         showLoadingMessage()
         dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
@@ -89,7 +153,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
                 print(3)
             }
             dispatch_async(dispatch_get_main_queue()) {
-                weakSelf?.hideLoadingMessage()
+                weakSelf?.hideLoadingMessage(dbUpdater)
             }
         }
     }
@@ -103,16 +167,14 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         editButtonItem().tintColor = UIColor.whiteColor()
         noFavoriteStopsButton.addTarget(self, action: #selector(FavoritesTableViewController.noFavoriteStopsButtonPressed(_:)), forControlEvents: [.TouchUpInside])
         initalizeFetchedResultsController()
+        self.refreshControl = UIRefreshControl()
+         self.refreshControl?.addTarget(self, action: #selector(FavoritesTableViewController.updateManualy), forControlEvents: .ValueChanged)
+        self.refreshControl?.backgroundColor = UIColor.grayColor()
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewWillAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        let dbUpdater = DatabaseUpdater(context: managedObjectContex)
-        if dbUpdater.databaseShouldBeUpdated() {
-            updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: nil)
-        } else if let routesThatAreMissingInformation = dbUpdater.routesMissingInfo() where dbUpdater.missingRoutesShouldBeUpdated() {
-            updateDatabaseUsing(dbUpdater, onlyUpdateRoutes: routesThatAreMissingInformation)
-        }
+        checkForUpdates()
     }
 
     override func didReceiveMemoryWarning() {
@@ -126,7 +188,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         let favoriteStopRequest = NSFetchRequest(entityName: BusStop.entityName)
         favoriteStopRequest.predicate = NSPredicate(format: "favorited == %@", NSNumber(bool: true))
         favoriteStopRequest.sortDescriptors = [NSSortDescriptor(key: "actualName", ascending: true)]
-        if let context = managedObjectContex {
+        if let context = FavoritesTableViewController.managedObjectContex {
             fetchedResultsController = NSFetchedResultsController(fetchRequest: favoriteStopRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
             do {
                 try fetchedResultsController?.performFetch()
@@ -195,7 +257,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
                 stop.favorited = NSNumber(bool: false)
                 stop.customName = nil
                 _ = try? fetchedResultsController?.performFetch()
-                _ = try? managedObjectContex?.save()
+                _ = try? FavoritesTableViewController.managedObjectContex?.save()
             }
             
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
@@ -227,7 +289,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     }
     
     @IBAction func addFavoriteStop(segue: UIStoryboardSegue) {
-        _ = try? managedObjectContex?.save()
+        _ = try? FavoritesTableViewController.managedObjectContex?.save()
         
     }
     
@@ -239,14 +301,16 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == Constants.SelectRouteSegue {
             if let selectRouteTVC = segue.destinationViewController.contentViewController as? SelectRouteTableViewController {
-                selectRouteTVC.managedObjectContex = managedObjectContex
+                selectRouteTVC.managedObjectContex = FavoritesTableViewController.managedObjectContex
                 selectRouteTVC.title = "Select a Route"
             }
         } else if segue.identifier == Constants.ArrivalTimesSegue {
             if let arrivalTimesTVC = segue.destinationViewController.contentViewController as? ArrivalTimesTableViewController,
             sendingCell = sender as? BusInfoTableViewCell {
                 if let sendingIndexPath = tableView.indexPathForCell(sendingCell) {
-                    arrivalTimesTVC.stop = fetchedResultsController?.objectAtIndexPath(sendingIndexPath) as? BusStop
+                    let selectedStop = fetchedResultsController?.objectAtIndexPath(sendingIndexPath) as? BusStop
+                    arrivalTimesTVC.stop = selectedStop
+                    arrivalTimesTVC.title = selectedStop?.actualName
                 }
             }
         }
