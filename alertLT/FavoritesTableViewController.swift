@@ -31,8 +31,8 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     let noFavoriteStopsButton: UIButton = {
         let button = UIButton()
         button.setTitle("Find a stop!", forState: .Normal)
-        button.setTitleColor(UIColor.blueColor(), forState: .Normal)
-        button.setTitleColor(UIColor.greenColor(), forState: .Highlighted)
+        button.setTitleColor(UIColor.lightBlueColor(), forState: .Normal)
+        button.setTitleColor(UIColor.blueColor(), forState: .Highlighted)
         button.titleLabel?.textAlignment = .Center
         button.titleLabel?.font = UIFont.preferredFontForTextStyle(UIFontTextStyleSubheadline)
         return button
@@ -168,8 +168,8 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         noFavoriteStopsButton.addTarget(self, action: #selector(FavoritesTableViewController.noFavoriteStopsButtonPressed(_:)), forControlEvents: [.TouchUpInside])
         initalizeFetchedResultsController()
         self.refreshControl = UIRefreshControl()
-         self.refreshControl?.addTarget(self, action: #selector(FavoritesTableViewController.updateManualy), forControlEvents: .ValueChanged)
-        self.refreshControl?.backgroundColor = UIColor.grayColor()
+        self.refreshControl?.addTarget(self, action: #selector(FavoritesTableViewController.updateManualy), forControlEvents: .ValueChanged)
+        self.refreshControl?.backgroundColor = UIColor.verylightGrayColor()
     }
     
     override func viewWillAppear(animated: Bool) {

@@ -49,12 +49,12 @@ class ArrivalTimesTableViewController: UITableViewController {
                 }
             }
             dispatch_async(dispatch_get_main_queue()) {
-                weakSelf?.arrivalTimesForEachRoute = arrivals.sort {  $0.0 == nil   || ($0.0 < $1.0) }
+                weakSelf?.arrivalTimesForEachRoute = arrivals
                 let dateFormatter = NSDateFormatter()
                 dateFormatter.dateFormat = "MMM d, h:mm a"
                 weakSelf?.refreshControl?.attributedTitle = NSAttributedString(string: "Last Updated on \(dateFormatter.stringFromDate(NSDate()))")
                 weakSelf?.refreshControl?.endRefreshing()
-                
+                weakSelf?.tableView.backgroundView = nil
             }
         }
     }
@@ -65,8 +65,14 @@ class ArrivalTimesTableViewController: UITableViewController {
         self.tableView?.rowHeight = UITableViewAutomaticDimension
         self.tableView?.estimatedRowHeight = 100
         self.refreshControl = UIRefreshControl()
-        self.refreshControl?.backgroundColor = UIColor.lightGrayColor()
+        self.refreshControl?.backgroundColor = UIColor.verylightGrayColor()
         self.refreshControl?.addTarget(self, action: #selector(ArrivalTimesTableViewController.fetchArrivalTimes), forControlEvents: .ValueChanged)
+        
+        let loadingLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height))
+        loadingLabel.text = "Fetching arrival times..."
+        loadingLabel.textColor = UIColor.lightGrayColor()
+        loadingLabel.textAlignment = .Center
+        self.tableView.backgroundView = loadingLabel
     }
 
     // MARK: - Table view data source
@@ -111,7 +117,7 @@ class ArrivalTimesTableViewController: UITableViewController {
                 
                 arrivalTimeCell.waitTimeLabel.text = waitTime > 0 ? "\(waitTime) min" : "due"
                 switch waitTime {
-                case 0...5 : arrivalTimeCell.waitTimeLabel.textColor = UIColor.greenColor()
+                case 0...5 : arrivalTimeCell.waitTimeLabel.textColor = UIColor.darkGreenColor()
                 case 6...15 : arrivalTimeCell.waitTimeLabel.textColor = UIColor.orangeColor()
                 default : arrivalTimeCell.waitTimeLabel.textColor = UIColor.redColor()
                 }
