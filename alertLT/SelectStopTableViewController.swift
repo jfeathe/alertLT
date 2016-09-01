@@ -114,11 +114,34 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
         }
     }
     
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        endSearchBarEditing()
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.text = nil
+        initalizeFetchedResultsController(nil)
+        endSearchBarEditing()
+    }
+    
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        beginSearchBarEditing()
+        return true
+    }
+    
+    private func endSearchBarEditing() {
+        searchBar.resignFirstResponder()
+        searchBar.showsCancelButton = false
+    }
+    
+    private func beginSearchBarEditing() {
+        searchBar.showsCancelButton = true
+    }
+    
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        endSearchBarEditing()
         if segue.identifier == Constants.CustomizeFavoriteRouteSegue {
             if let desinationVC = segue.destinationViewController.contentViewController as? AddFavoriteStopViewController,
             sendingCell = sender as? BusInfoTableViewCell{

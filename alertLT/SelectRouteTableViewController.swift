@@ -12,7 +12,6 @@ import CoreData
 class SelectRouteTableViewController: FetchedResultsTableViewController, UISearchBarDelegate {
     
     enum Constants {
-        static let SelectRoutesCache = "selectRoutesCache"
         static let RouteCellIdentifier = "RouteCell"
         static let SelectStopSegueIdentifier = "SelectStopSegue"
     }
@@ -105,9 +104,34 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         }
     }
     
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        endSearchBarEditing()
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.text = nil
+        initalizeFetchedResultsController(nil)
+        endSearchBarEditing()
+    }
+    
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        beginSearchBarEditing()
+        return true
+    }
+    
+    private func endSearchBarEditing() {
+        searchBar.resignFirstResponder()
+        searchBar.showsCancelButton = false
+    }
+    
+    private func beginSearchBarEditing() {
+        searchBar.showsCancelButton = true
+    }
+    
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        endSearchBarEditing()
         if segue.identifier == Constants.SelectStopSegueIdentifier {
             if let stopsTVC = segue.destinationViewController.contentViewController as? SelectStopTableViewController,
             sendingCell = sender as? BusInfoTableViewCell{
