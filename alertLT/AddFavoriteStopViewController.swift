@@ -10,12 +10,6 @@ import UIKit
 
 class AddFavoriteStopViewController: UIViewController {
 
-    
-    @IBOutlet weak var nicknameTextField: UITextField!
-    @IBOutlet weak var routeLabel: UILabel!
-    @IBOutlet weak var directionLabel: UILabel!
-    @IBOutlet weak var stopLabel: UILabel!
-    
     private enum Constants {
         static let AddFavoriteStopSegue = "AddFavoriteStopSegue"
     }
@@ -23,6 +17,13 @@ class AddFavoriteStopViewController: UIViewController {
     // MARK: Model
     var route: BusRoute?
     var stop: BusStop?
+    
+    // MARK: UI Elements
+    
+    @IBOutlet weak var nicknameTextField: UITextField!
+    @IBOutlet weak var routeLabel: UILabel!
+    @IBOutlet weak var directionLabel: UILabel!
+    @IBOutlet weak var stopLabel: UILabel!
     
     private func updateLabels() {
         if let routeNumber = route?.number, routeName = route?.name, routeDirection = route?.direction {

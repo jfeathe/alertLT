@@ -67,7 +67,7 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
         return cell
     }
     
-    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+    private func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         guard let cell = cell as? BusInfoTableViewCell,
             let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop else {
                 return
@@ -145,7 +145,6 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
     
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         endSearchBarEditing()
         if segue.identifier == Constants.ShowArrivalTimesSegue {

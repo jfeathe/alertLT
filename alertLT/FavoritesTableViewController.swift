@@ -18,7 +18,11 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         static let FavoriteStopCell = "FavoriteStopCell"
     }
     
-    //UI Elements for the Loading Data Message
+    // MARK: - Model
+    
+    static var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
+    
+    // MARK: - UI Elements
     
     let noFavoriteStopsLabel: UILabel = {
        let label =  UILabel()
@@ -38,11 +42,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         return button
     }()
     
-    // MARK: Model
-    
-    static var managedObjectContex: NSManagedObjectContext? = (UIApplication.sharedApplication().delegate as? AppDelegate)?.managedObjectContext
-    
-    // MARK: Updating the background view UI for displaying messages to the user
+    // MARK: - Updating the background view UI for displaying messages to the user
 
     
     func showLoadingMessage() {
@@ -213,7 +213,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         return cell
     }
     
-    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+    private func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         
         guard let favoriteStopCell = cell as? BusInfoTableViewCell,
             stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop else {
@@ -232,7 +232,6 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         }
         
         let routes = unsortedRoutes.sort { Int($0.number!) < Int($1.number!) }
-        
         var listOfRoutesString = ""
         for (index, route) in routes.enumerate() {
             if index > 0 {
@@ -255,7 +254,6 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
                 _ = try? fetchedResultsController?.performFetch()
                 _ = try? FavoritesTableViewController.managedObjectContex?.save()
             }
-            
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         }
     }

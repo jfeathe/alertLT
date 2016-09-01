@@ -11,21 +11,23 @@ import CoreData
 
 class SelectStopTableViewController: FetchedResultsTableViewController, UISearchBarDelegate {
     
-    // MARK: Model
-    var route: BusRoute?
-    var managedObjectContex: NSManagedObjectContext?
-    
-    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
-    
     enum Constants {
         static let StopCellIdentifier = "StopCell"
         static let CustomizeFavoriteRouteSegue = "CustomizeFavoriteRouteSegue"
     }
     
+    // MARK: - Model
+    var route: BusRoute?
+    var managedObjectContex: NSManagedObjectContext?
+    
+    // MARK: - UI Elements
+    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
+    
+    // MARK: View Controller Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         initalizeFetchedResultsController()
-        checkForNoStopData()
+        checkForNoStopInfo()
     }
 
     // MARK: - Table view data source
@@ -56,7 +58,7 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
         }
     }
     
-    private func checkForNoStopData() {
+    private func checkForNoStopInfo() {
         if fetchedResultsController?.sections?[0].numberOfObjects == 0 {
             let alert = UIAlertController(title: "No Stop Data for this Route",
                                           message: "This stop is currently not in service and we do not have any stop information saved. Please try again when this stop is in service.",
@@ -76,7 +78,7 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
         return cell
     }
     
-    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+    private func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         guard let cell = cell as? BusInfoTableViewCell,
             let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop else {
             return

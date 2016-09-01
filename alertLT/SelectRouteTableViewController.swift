@@ -16,13 +16,12 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         static let SelectStopSegueIdentifier = "SelectStopSegue"
     }
     
-    //Outlets and UIElements
-    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
-    
-    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
-    
     // MARK: - Model
     var managedObjectContex: NSManagedObjectContext?
+    
+    // MARK: - UI Elements
+    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
+    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
     
     // MARK: -  View Controller Lifecycle
     
@@ -68,7 +67,7 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         return cell
     }
     
-    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+    private func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         guard let busInfoCell = cell as? BusInfoTableViewCell, route = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusRoute else {
             return
         }
