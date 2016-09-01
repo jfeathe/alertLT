@@ -16,6 +16,6 @@
     </entity>
     <elements>
         <element name="BusRoute" positionX="-63" positionY="-18" width="128" height="120"/>
-        <element name="BusStop" positionX="198" positionY="54" width="128" height="118"/>
+        <element name="BusStop" positionX="198" positionY="54" width="128" height="120"/>
     </elements>
 </model>

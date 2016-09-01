@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class SelectRouteTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+class SelectRouteTableViewController: FetchedResultsTableViewController, UISearchBarDelegate {
     
     enum Constants {
         static let SelectRoutesCache = "selectRoutesCache"
@@ -20,51 +20,47 @@ class SelectRouteTableViewController: UITableViewController, NSFetchedResultsCon
     //Outlets and UIElements
     @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
     
-    // MARK: Model
-    var managedObjectContex: NSManagedObjectContext?
-    var fetchedResultsController: NSFetchedResultsController? {
-        didSet {
-            fetchedResultsController?.delegate = self
-        }
-    }
+    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
     
-    // MARK View Controller Lifecycle
+    // MARK: - Model
+    var managedObjectContex: NSManagedObjectContext?
+    
+    // MARK: -  View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initalizeFetchedResultsController()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
     
     // MARK: - Table view data source
-    
     private func initalizeFetchedResultsController() {
+        initalizeFetchedResultsController(nil)
+    }
+    
+    private func initalizeFetchedResultsController(searchBarString: String?) {
+        
         let routesRequest = NSFetchRequest(entityName: BusRoute.entityName)
+        
         let nameSort = NSSortDescriptor(key: "number", ascending: true)
         let directionSort = NSSortDescriptor(key: "direction", ascending: true)
         routesRequest.sortDescriptors = [nameSort, directionSort]
+        
+        if let searchString = searchBarString {
+            routesRequest.predicate = NSPredicate(format: "name CONTAINS[c] %@ OR number.stringValue CONTAINS[c] %@", searchString, searchString)
+        }
+        
         if let context = managedObjectContex {
             fetchedResultsController = NSFetchedResultsController(fetchRequest: routesRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
             do {
                 try fetchedResultsController?.performFetch()
+                tableView.reloadData()
             } catch {
                 fatalError("Failed to initialize FetchedResultsController: \(error)")
             }
         } else {
             fatalError("SelectRouteTVC does not have instance of managedObjectContext")
         }
-    }
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return fetchedResultsController?.sections?.count ?? 1
-    }
-
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return fetchedResultsController?.sections?[section].numberOfObjects ?? 0
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -74,35 +70,16 @@ class SelectRouteTableViewController: UITableViewController, NSFetchedResultsCon
     }
     
     func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
-        
-        if let cell = cell as? SelectRouteTableViewCell,
-            let route = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusRoute {
-            cell.busRoute = route
+        guard let busInfoCell = cell as? BusInfoTableViewCell, route = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusRoute else {
+            return
+        }
+        if let name = route.name, number = route.number, direction = route.direction {
+            busInfoCell.primaryTextLabel.text = String(number)
+            busInfoCell.secondaryTextLabel.text = "\(name) - \(direction.substringToIndex(direction.startIndex.successor()))"
         }
     }
     
     // MARK - Fetched Results Controller Delegate Methods
-    
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
-        tableView.beginUpdates()
-    }
-    
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        tableView.endUpdates()
-    }
-    
-    func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
-        switch type {
-        case .Insert:
-            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Delete:
-            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Move:
-            break
-        case .Update:
-            break
-        }
-    }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
@@ -117,17 +94,28 @@ class SelectRouteTableViewController: UITableViewController, NSFetchedResultsCon
             tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
         }
     }
-
+    
+    // MARK: - Search Bar Delegate Methods
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.characters.count > 0 {
+            initalizeFetchedResultsController(searchText)
+        } else {
+            initalizeFetchedResultsController(nil)
+        }
+    }
     
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == Constants.SelectStopSegueIdentifier {
-            if let stopsTVC = segue.destinationViewController.contentViewController as? SelectStopTableViewController {
+            if let stopsTVC = segue.destinationViewController.contentViewController as? SelectStopTableViewController,
+            sendingCell = sender as? BusInfoTableViewCell{
                 stopsTVC.managedObjectContex = managedObjectContex
                 stopsTVC.title = "Select a Stop"
-                stopsTVC.route = (sender as? SelectRouteTableViewCell)?.busRoute
+                if let senderIndexPath = tableView.indexPathForCell((sendingCell)) {
+                    stopsTVC.route = fetchedResultsController?.objectAtIndexPath(senderIndexPath) as? BusRoute
+                }
             }
         }
     }
