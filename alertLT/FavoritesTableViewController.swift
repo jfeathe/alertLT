@@ -61,6 +61,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         noFavoriteStopsButton.hidden = true
         refreshControl?.attributedTitle = NSAttributedString(string: "Downloading the latest stop information 📡")
         self.refreshControl!.beginRefreshing()
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         
     }
     
@@ -87,6 +88,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
            refreshControl?.attributedTitle = NSAttributedString(string: "Pull to update" )
         }
         self.refreshControl?.endRefreshing()
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
     }
     
     private func showNoFavoritesMessage() {
@@ -291,6 +293,10 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        //If we segue somewhere stop the table view and bar buttonitem from being in edit mode
+        setEditing(false, animated: true)
+        tableView.setEditing(false, animated: true)
+        
         if segue.identifier == Constants.SelectRouteSegue {
             if let selectRouteTVC = segue.destinationViewController.contentViewController as? SelectRouteTableViewController {
                 selectRouteTVC.managedObjectContex = FavoritesTableViewController.managedObjectContex

@@ -590,7 +590,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="# Min" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cxR-pH-bBN">
-                                            <rect key="frame" x="556" y="8" width="36" height="17"/>
+                                            <rect key="frame" x="556" y="74" width="36" height="17"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
@@ -613,14 +613,17 @@
                                         </label>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="cxR-pH-bBN" firstAttribute="bottom" secondItem="EtM-fJ-9WU" secondAttribute="bottom" id="4R6-gW-yU2"/>
                                         <constraint firstAttribute="bottomMargin" secondItem="cxR-pH-bBN" secondAttribute="bottom" constant="62" id="9of-yA-vgT"/>
                                         <constraint firstItem="EtM-fJ-9WU" firstAttribute="top" secondItem="wcz-8P-tOU" secondAttribute="bottom" constant="8" symbolic="YES" id="Af3-ZY-Tdz"/>
+                                        <constraint firstItem="cxR-pH-bBN" firstAttribute="centerY" secondItem="EtM-fJ-9WU" secondAttribute="centerY" id="EX3-O1-NLD"/>
                                         <constraint firstItem="wcz-8P-tOU" firstAttribute="leading" secondItem="EtM-fJ-9WU" secondAttribute="leading" id="GBr-Th-tZ2"/>
                                         <constraint firstItem="wcz-8P-tOU" firstAttribute="top" secondItem="EgA-26-TyU" secondAttribute="topMargin" id="Gph-LY-nQH"/>
                                         <constraint firstAttribute="topMargin" secondItem="cxR-pH-bBN" secondAttribute="top" id="NYa-N2-6us"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="EtM-fJ-9WU" secondAttribute="trailing" id="QzL-NR-j60"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="wcz-8P-tOU" secondAttribute="trailing" id="Uiz-rL-Sw9"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="EtM-fJ-9WU" secondAttribute="trailing" id="ag9-fg-PTE"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="cxR-pH-bBN" secondAttribute="trailing" id="aoW-kf-837"/>
                                         <constraint firstAttribute="trailingMargin" secondItem="cxR-pH-bBN" secondAttribute="trailing" id="apu-uY-AcJ"/>
                                         <constraint firstItem="EtM-fJ-9WU" firstAttribute="top" secondItem="wcz-8P-tOU" secondAttribute="bottom" constant="8" symbolic="YES" id="cOF-no-Nnf"/>
                                         <constraint firstAttribute="leadingMargin" secondItem="EtM-fJ-9WU" secondAttribute="leading" id="eAs-hA-I02"/>
@@ -636,6 +639,9 @@
                                             <exclude reference="QzL-NR-j60"/>
                                             <exclude reference="txY-rR-9k2"/>
                                             <exclude reference="9of-yA-vgT"/>
+                                            <exclude reference="EX3-O1-NLD"/>
+                                            <exclude reference="NYa-N2-6us"/>
+                                            <exclude reference="apu-uY-AcJ"/>
                                             <exclude reference="tTD-hQ-rz8"/>
                                         </mask>
                                     </variation>

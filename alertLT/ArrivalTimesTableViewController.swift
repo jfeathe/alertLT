@@ -43,7 +43,7 @@ class ArrivalTimesTableViewController: UITableViewController {
             return
         }
         let routes = unsortedRoutes.sort { Int($0.number!) < Int($1.number!) }
-        
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
             if let wwStop = stop.asWebWatchStop() {
                 
@@ -83,6 +83,7 @@ class ArrivalTimesTableViewController: UITableViewController {
                 weakSelf?.refreshControl?.attributedTitle = NSAttributedString(string: "Last Updated on \(dateFormatter.stringFromDate(NSDate()))")
                 weakSelf?.refreshControl?.endRefreshing()
                 weakSelf?.tableView.backgroundView = nil
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
             }
         }
     }
