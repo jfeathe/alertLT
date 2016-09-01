@@ -37,17 +37,17 @@ class DatabaseUpdater {
     /// Returns if the entire database should be updated
     func databaseShouldBeUpdated() -> Bool {
         // Update entire database if it hasnt been updated in 14 days
-        return lastDatabaseUpdateWasMoreThan(14, timeUnit: .Day)
+        return databaseIsOutOfDateBy(14, timeUnit: .Day)
     }
     
     /// Returns if only the routes missing info should be updated
     func missingRoutesShouldBeUpdated() -> Bool {
         // Update the missing stops if they havent been updated in 4 hours
-        return lastDatabaseUpdateWasMoreThan(4, timeUnit: .Hour)
+        return databaseIsOutOfDateBy(4, timeUnit: .Hour)
     }
     
     ///Returns if the last database update is older then the given number of time units ago
-    private func lastDatabaseUpdateWasMoreThan(value: Int, timeUnit: NSCalendarUnit) -> Bool {
+    private func databaseIsOutOfDateBy(value: Int, timeUnit: NSCalendarUnit) -> Bool {
         if let lastUpdatedDate = (defaults.objectForKey(Constants.dateLastUpdatedKey) as? NSDate) {
             let calander = NSCalendar.currentCalendar()
             if let timeToCompareAgainst = calander.dateByAddingUnit(timeUnit, value: -value, toDate: NSDate(), options: [])  {

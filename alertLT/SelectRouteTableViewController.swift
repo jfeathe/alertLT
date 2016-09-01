@@ -12,18 +12,16 @@ import CoreData
 class SelectRouteTableViewController: FetchedResultsTableViewController, UISearchBarDelegate {
     
     enum Constants {
-        static let SelectRoutesCache = "selectRoutesCache"
         static let RouteCellIdentifier = "RouteCell"
         static let SelectStopSegueIdentifier = "SelectStopSegue"
     }
     
-    //Outlets and UIElements
-    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
-    
-    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
-    
     // MARK: - Model
     var managedObjectContex: NSManagedObjectContext?
+    
+    // MARK: - UI Elements
+    @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
+    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
     
     // MARK: -  View Controller Lifecycle
     
@@ -69,7 +67,7 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         return cell
     }
     
-    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+    private func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         guard let busInfoCell = cell as? BusInfoTableViewCell, route = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusRoute else {
             return
         }
@@ -105,9 +103,34 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         }
     }
     
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        endSearchBarEditing()
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.text = nil
+        initalizeFetchedResultsController(nil)
+        endSearchBarEditing()
+    }
+    
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        beginSearchBarEditing()
+        return true
+    }
+    
+    private func endSearchBarEditing() {
+        searchBar.resignFirstResponder()
+        searchBar.showsCancelButton = false
+    }
+    
+    private func beginSearchBarEditing() {
+        searchBar.showsCancelButton = true
+    }
+    
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        endSearchBarEditing()
         if segue.identifier == Constants.SelectStopSegueIdentifier {
             if let stopsTVC = segue.destinationViewController.contentViewController as? SelectStopTableViewController,
             sendingCell = sender as? BusInfoTableViewCell{

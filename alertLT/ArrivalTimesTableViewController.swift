@@ -14,10 +14,28 @@ class ArrivalTimesTableViewController: UITableViewController {
         static let arrivalCell = "ArrivalTimeCell"
     }
     
-    // Mark: Model
+    // MARK: - Model
     
     var stop: BusStop? { didSet { fetchArrivalTimes() } }
-    var arrivalTimesForEachRoute: [(String?, BusRoute)]? { didSet { tableView.reloadData() } }
+    private var arrivalTimesForEachRoute: [(String?, BusRoute)]? { didSet { tableView.reloadData() } }
+    
+    // MARKL: - UI Elements
+    
+    private let refreshSpinner: UIRefreshControl = {
+        let spinner = UIRefreshControl()
+        spinner.backgroundColor = UIColor.verylightGrayColor()
+        return spinner
+    }()
+    
+    private var loadingLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Fetching arrival times..."
+        label.textColor = UIColor.lightGrayColor()
+        label.textAlignment = .Center
+        return label
+    }()
+    
+    // MARK: - View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,14 +43,9 @@ class ArrivalTimesTableViewController: UITableViewController {
         self.tableView?.rowHeight = UITableViewAutomaticDimension
         self.tableView?.estimatedRowHeight = 100
         
-        self.refreshControl = UIRefreshControl()
-        self.refreshControl?.backgroundColor = UIColor.verylightGrayColor()
-        self.refreshControl?.addTarget(self, action: #selector(ArrivalTimesTableViewController.fetchArrivalTimes), forControlEvents: .ValueChanged)
-        
-        let loadingLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height))
-        loadingLabel.text = "Fetching arrival times..."
-        loadingLabel.textColor = UIColor.lightGrayColor()
-        loadingLabel.textAlignment = .Center
+        refreshSpinner.addTarget(self, action: #selector(ArrivalTimesTableViewController.fetchArrivalTimes), forControlEvents: .ValueChanged)
+        self.refreshControl = refreshSpinner
+        loadingLabel.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
         self.tableView.backgroundView = loadingLabel
     }
     
@@ -98,8 +111,9 @@ class ArrivalTimesTableViewController: UITableViewController {
         if let numRows =  arrivalTimesForEachRoute?.count where numRows > 0{
             tableView.backgroundView = nil
             return numRows
+        } else {
+            return 0
         }
-        return 0
     }
 
     
@@ -109,13 +123,13 @@ class ArrivalTimesTableViewController: UITableViewController {
         return cell
     }
  
-    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+    private func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         guard let arrivalTimeCell = cell as? ArrivalTimeTableViewCell,
-            arrivalTimesForEachRoute = arrivalTimesForEachRoute?[indexPath.row] else {
+            arrivalTimesForRouteAtIndexPath = arrivalTimesForEachRoute?[indexPath.row] else {
                 return
         }
         
-        let (estimatedArrivals, route) = arrivalTimesForEachRoute
+        let (estimatedArrivals, route) = arrivalTimesForRouteAtIndexPath
         
         if let routeName = route.name, routeNumber = route.number, routeDirection = route.direction {
             arrivalTimeCell.routeNameLabel.text = "\(routeNumber) - \(routeName) \(routeDirection.substringToIndex(routeDirection.startIndex.successor()))"
@@ -141,7 +155,7 @@ class ArrivalTimesTableViewController: UITableViewController {
         }
     }
     
-    func calcWaitTimeUsing(arrivalTimes: String) -> Int? {
+    private func calcWaitTimeUsing(arrivalTimes: String) -> Int? {
         guard let calander = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian) else {
             return nil
         }

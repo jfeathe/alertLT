@@ -20,11 +20,7 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
     var managedObjectContex: NSManagedObjectContext? = FavoritesTableViewController.managedObjectContex
     
     // MARK: UI Elements
-    @IBOutlet weak var searchBar: UISearchBar! {
-        didSet {
-            searchBar.delegate = self
-        }
-    }
+    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
     
     // MARK: View Controller Lifecycle
     
@@ -71,7 +67,7 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
         return cell
     }
     
-    func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
+    private func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         guard let cell = cell as? BusInfoTableViewCell,
             let stop = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusStop else {
                 return
@@ -114,7 +110,7 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
     }
     
     // MARK:  - Search Bar Delegate Methods
-    
+
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.characters.count > 0 {
             initalizeFetchedResultsController(searchText)
@@ -123,10 +119,34 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
         }
     }
     
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        endSearchBarEditing()
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        searchBar.text = nil
+        initalizeFetchedResultsController(nil)
+        endSearchBarEditing()
+    }
+    
+    func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
+        beginSearchBarEditing()
+        return true
+    }
+    
+    private func endSearchBarEditing() {
+        searchBar.resignFirstResponder()
+        searchBar.showsCancelButton = false
+    }
+    
+    private func beginSearchBarEditing() {
+        searchBar.showsCancelButton = true
+    }
+    
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        endSearchBarEditing()
         if segue.identifier == Constants.ShowArrivalTimesSegue {
             if let arrivalTimesTVC = segue.destinationViewController.contentViewController as? ArrivalTimesTableViewController,
                 sendingCell = sender as? BusInfoTableViewCell {
