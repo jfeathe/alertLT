@@ -9,7 +9,6 @@
 import UIKit
 
 class ArrivalTimeTableViewCell: UITableViewCell {
-
     @IBOutlet weak var routeNameLabel: UILabel!
     @IBOutlet weak var estimatedArrivalLabel: UILabel!
     @IBOutlet weak var waitTimeLabel: UILabel!

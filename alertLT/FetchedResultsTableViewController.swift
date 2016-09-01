@@ -9,15 +9,10 @@
 import UIKit
 import CoreData
 
-
-/// Superclass for the general implementation of a TableView that uses a fetched results controller
+///Superclass that contains general implementation of a UITableViewController that uses a NSFetchedResultsController for its data soure
 class FetchedResultsTableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
 
-    var fetchedResultsController: NSFetchedResultsController? {
-        didSet {
-            fetchedResultsController?.delegate = self
-        }
-    }
+    var fetchedResultsController: NSFetchedResultsController? { didSet { fetchedResultsController?.delegate = self } }
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return fetchedResultsController?.sections?.count ?? 1

@@ -11,22 +11,25 @@ import CoreData
 
 class QuickSearchTableViewController: FetchedResultsTableViewController, UISearchBarDelegate {
 
+    enum Constants {
+        static let ShowArrivalTimesSegue = "QSArrivalTimesSegue"
+        static let QuickSearchCell = "QuickSearchCell"
+    }
+    
+    // MARK: Model
+    var managedObjectContex: NSManagedObjectContext? = FavoritesTableViewController.managedObjectContex
+    
+    // MARK: UI Elements
     @IBOutlet weak var searchBar: UISearchBar! {
         didSet {
             searchBar.delegate = self
         }
     }
     
-    // MARK: Models
-    var managedObjectContex: NSManagedObjectContext? = FavoritesTableViewController.managedObjectContex
+    // MARK: View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    }
-    
-    enum Constants {
-        static let ShowArrivalTimesSegue = "QSArrivalTimesSegue"
-        static let QuickSearchCell = "QuickSearchCell"
     }
     
     // MARK: - Table view data source
@@ -44,8 +47,12 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
         }
         
         if let context = managedObjectContex {
-            fetchedResultsController = NSFetchedResultsController(fetchRequest: quickSearchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-            
+            fetchedResultsController = NSFetchedResultsController(
+                fetchRequest: quickSearchRequest,
+                managedObjectContext: context,
+                sectionNameKeyPath: nil,
+                cacheName: nil
+            )
             do {
                 try fetchedResultsController?.performFetch()
                 tableView.reloadData()
@@ -60,9 +67,7 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(Constants.QuickSearchCell, forIndexPath: indexPath)
-
         configureCell(cell, forIndexPath: indexPath)
-
         return cell
     }
     
@@ -80,7 +85,6 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
             cell.secondaryTextLabel.text = "No routes found that stop at this stop"
             return
         }
-        
         let routes = unsortedRoutes.sort { Int($0.number!) < Int($1.number!) }
         
         var listOfRoutesString = ""
@@ -93,7 +97,6 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
             }
         }
         cell.secondaryTextLabel.text = listOfRoutesString
-        
     }
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
@@ -109,7 +112,9 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
             tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
         }
     }
-
+    
+    // MARK:  - Search Bar Delegate Methods
+    
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.characters.count > 0 {
             initalizeFetchedResultsController(searchText)
@@ -134,6 +139,4 @@ class QuickSearchTableViewController: FetchedResultsTableViewController, UISearc
             }
         }
     }
-    
-
 }

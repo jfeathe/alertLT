@@ -86,7 +86,6 @@ class BusRoute: NSManagedObject {
                     alreadyExistingStopStillExists = true
                 }
             }
-            
             if !alreadyExistingStopStillExists {
                 
                 route.removeStopsObject(existingStop)
@@ -104,7 +103,6 @@ class BusRoute: NSManagedObject {
                     doesNotExistInExistingStops = false
                 }
             }
-            
             if doesNotExistInExistingStops {
                 if let databaseStop = BusStop.addStopToDatabase(foundStop, inManagedObjectContex: context) {
                     route.addStopsObject(databaseStop)
@@ -113,13 +111,13 @@ class BusRoute: NSManagedObject {
         }
     }
     
+    // Converts a BusRoute to a WebWatchRoute and WebWatchDirection object
     func asWebWatchRouteAndDirection() -> (route: WebWatchRoute, direction: WebWatchDirection)? {
         guard let name = self.name, number = self.number, direction = self.direction else {
             return nil
         }
         
         let route = WebWatchRoute(name: name, number: Int(number))
-        
         switch direction {
         case "Northbound" : return (route, WebWatchDirection.Northbound)
         case "Southbound" : return (route, WebWatchDirection.Southbound)

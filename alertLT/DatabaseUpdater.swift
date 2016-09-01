@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 
+/// Class that checks if the Core Data database needs to be updated and updates it
 class DatabaseUpdater {
     
     private var managedObjectContex: NSManagedObjectContext?
@@ -33,12 +34,15 @@ class DatabaseUpdater {
         self.managedObjectContex = context
     }
     
-    // TODO: Add Check for if on WIFI
+    /// Returns if the entire database should be updated
     func databaseShouldBeUpdated() -> Bool {
+        // Update entire database if it hasnt been updated in 14 days
         return lastDatabaseUpdateWasMoreThan(14, timeUnit: .Day)
     }
     
+    /// Returns if only the routes missing info should be updated
     func missingRoutesShouldBeUpdated() -> Bool {
+        // Update the missing stops if they havent been updated in 4 hours
         return lastDatabaseUpdateWasMoreThan(4, timeUnit: .Hour)
     }
     
@@ -47,7 +51,7 @@ class DatabaseUpdater {
         if let lastUpdatedDate = (defaults.objectForKey(Constants.dateLastUpdatedKey) as? NSDate) {
             let calander = NSCalendar.currentCalendar()
             if let timeToCompareAgainst = calander.dateByAddingUnit(timeUnit, value: -value, toDate: NSDate(), options: [])  {
-                if !(lastUpdatedDate == lastUpdatedDate.earlierDate(timeToCompareAgainst)) {
+                if lastUpdatedDate == lastUpdatedDate.laterDate(timeToCompareAgainst) {
                     return false
                 }
             }
@@ -55,16 +59,15 @@ class DatabaseUpdater {
         return true
     }
     
+    /// Returns and array of routes that are still missing information
     func routesMissingInfo() -> [BusRoute]? {
-        
         var routesMissingInfo: [BusRoute]?
-        managedObjectContex?.performBlockAndWait {
-            [weak weakSelf = self] in
-            let routesWithoutStopsRequest = NSFetchRequest(entityName: BusRoute.entityName)
-            routesWithoutStopsRequest.predicate = NSPredicate(format: "hasStopsData == NO")
-            routesWithoutStopsRequest.sortDescriptors =  [NSSortDescriptor(key: "name", ascending: true)]
+        managedObjectContex?.performBlockAndWait { [weak weakSelf = self] in
+            let routesWithoutStopInfoRequest = NSFetchRequest(entityName: BusRoute.entityName)
+            routesWithoutStopInfoRequest.predicate = NSPredicate(format: "hasStopsData == NO")
+            routesWithoutStopInfoRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
             
-            let result =  try? weakSelf?.managedObjectContex!.executeFetchRequest(routesWithoutStopsRequest)
+            let result =  try? weakSelf?.managedObjectContex!.executeFetchRequest(routesWithoutStopInfoRequest)
             if let routes = result as? [BusRoute] {
                 routesMissingInfo = routes
             }
@@ -72,24 +75,33 @@ class DatabaseUpdater {
         return routesMissingInfo
     }
     
+    /// Updates the entire database of Bus Routes / Stop
     func updateEntireDatabase() throws {
         let routes = try WebWatchScrapper.fetchListOfRoutes()
         for route in routes {
             let directions = try WebWatchScrapper.fetchDirectionsForRoute(route)
-            
             let firstDirectionStops = try WebWatchScrapper.fetchListOfStopsForRoute(route, forDirection: directions.firstDirection)
             let secondDirectionStops = try WebWatchScrapper.fetchListOfStopsForRoute(route, forDirection: directions.secondDirection)
             
             managedObjectContex?.performBlockAndWait { [weak weakSelf = self] in
-                BusRoute.addRouteToDatabase(route, withDirection: directions.firstDirection, withStops: firstDirectionStops, inManagedObjectContext: weakSelf!.managedObjectContex!)
+                BusRoute.addRouteToDatabase(route,
+                    withDirection: directions.firstDirection,
+                    withStops: firstDirectionStops,
+                    inManagedObjectContext: weakSelf!.managedObjectContex!
+                )
                 
-                BusRoute.addRouteToDatabase(route, withDirection: directions.secondDirection, withStops: secondDirectionStops, inManagedObjectContext: weakSelf!.managedObjectContex!)
+                BusRoute.addRouteToDatabase(route,
+                    withDirection: directions.secondDirection,
+                    withStops: secondDirectionStops,
+                    inManagedObjectContext: weakSelf!.managedObjectContex!
+                )
                 _ = try? weakSelf?.managedObjectContex?.save()
             }
         }
         defaults.setObject(NSDate(), forKey: Constants.dateLastUpdatedKey)
     }
     
+    /// Updates only the given routes information
     func updateRoutes(routes: [BusRoute]) throws {
         for route in routes {
             if let name = route.name, number = route.number, directionString = route.direction {
@@ -106,25 +118,6 @@ class DatabaseUpdater {
         }
         defaults.setObject(NSDate(), forKey: Constants.dateLastUpdatedKey)
     }
-    
-    func printDatabaseContents() {
-        managedObjectContex?.performBlock {
-                if let results = try? self.managedObjectContex!.executeFetchRequest(NSFetchRequest(entityName: BusRoute.entityName)) {
-                for result in results {
-                    if let route = result as? BusRoute {
-                        print(route.name! + " - "+route.direction!)
-                        if let stops = route.stops?.allObjects as? [BusStop] {
-                            for stop in stops.sort( {  $0.actualName < $1.actualName} ) {
-                                print(stop.actualName!)
-                            }
-                        }
-                        print("-----------------------------")
-                    }
-                }
-            }
-        }
-    }
-
 }
 
 

@@ -34,6 +34,7 @@ class BusStop: NSManagedObject {
         return nil
     }
     
+    /// Converts a BusStop to a WebWatch Stop object
     func asWebWatchStop() -> WebWatchStop? {
         guard let name = self.actualName, number = self.number else {
             return nil

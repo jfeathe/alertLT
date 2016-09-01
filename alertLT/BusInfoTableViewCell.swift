@@ -8,9 +8,8 @@
 
 import UIKit
 
+/// UITableViewCell subclass that contains two UILabels
 class BusInfoTableViewCell: UITableViewCell {
-
     @IBOutlet weak var primaryTextLabel: UILabel!
     @IBOutlet weak var secondaryTextLabel: UILabel!
-    
 }

@@ -8,6 +8,29 @@
 
 import Foundation
 
+struct WebWatchRoute {
+    var name: String
+    var number: Int
+}
+
+enum WebWatchDirection: Int {
+    case Northbound = 2
+    case Eastbound = 1
+    case Southbound = 3
+    case Westbound = 4
+}
+
+struct WebWatchStop {
+    var name: String
+    var number: Int
+}
+
+enum WebWatchError: ErrorType {
+    case CannotGetContentsOfURL
+    case InvalidURL
+}
+
+/// Class that has
 class WebWatchScrapper {
     
     private struct WebWatchConstants {
@@ -63,7 +86,6 @@ class WebWatchScrapper {
     static func fetchDirectionsForRoute(route: WebWatchRoute) throws -> (firstDirection: WebWatchDirection, secondDirection: WebWatchDirection) {
         
         let directionsURLString = "\(WebWatchConstants.queryPrefix)r=\(route.number)"
-        
         guard let directionsURL = NSURL(string: directionsURLString) else {
             throw WebWatchError.InvalidURL
         }
@@ -111,10 +133,8 @@ class WebWatchScrapper {
     private static func scrapeStopsFromWebWatchPage(htmlPage: String, forRoute route: WebWatchRoute, forDirection direction: WebWatchDirection) -> [WebWatchStop]? {
         
         var stops = [WebWatchStop]()
-        
         //if we seperate html page by <br> tags we get an array with all stops as their own element thanks to how the WebWatch page is organzied
         let seperations = htmlPage.componentsSeparatedByString("<br>")
-        
         //but we also have extra junk seperations in the array that we do not need
         //so we need to check each seperation and see which ones contain stops
         for var seperation in seperations {
@@ -144,27 +164,34 @@ class WebWatchScrapper {
         return stops.count > 0 ? stops : nil
     }
     
+    /// Returns a string that contains the arrival times avaliable for a given route and stop
+    /// If the string returned is nil the stop is not in service
     static func fetchArrivalTimesForRoute(route: WebWatchRoute, forDirection direction: WebWatchDirection, forStop stop: WebWatchStop) throws -> String? {
         
         let arrivalTimesURLString = "\(WebWatchConstants.queryPrefix)r=\(route.number)&d=\(direction.rawValue)&s=\(stop.number)"
         guard let arrivalTimesURL = NSURL(string: arrivalTimesURLString) else {
-            throw WebWatchError.CannotGetContentsOfURL
+            throw WebWatchError.InvalidURL
         }
         
         do {
             let contentsOfURL = try String(contentsOfURL: arrivalTimesURL)
             return scrapeArrivalTimesFromWebWatchPage(contentsOfURL)
         } catch {
-            throw WebWatchError.InvalidURL
+            throw WebWatchError.CannotGetContentsOfURL
         }
     }
-
     
+    /// Given an html page that contains the arrival times it puts them all into one string and returns it
     private static func scrapeArrivalTimesFromWebWatchPage(htmlPage: String) -> String? {
         
+        
+        ///if we seperate the html page by <br> tags we get an array with all arrival times as their own element
         let seperations = htmlPage.componentsSeparatedByString("<br>")
+        //But we also have extra seperations in the array we do not need
+        //so we need to check each seperation and see which ones contain arrival times
         var arrivalTimes = ""
         for seperation in seperations {
+            //if the seperation contains "A.M" or "P.M" it must be an arrival time
             if seperation.containsString("A.M") || seperation.containsString("P.M") {
                 var time = seperation
                 time.removeExcessSpaces()
@@ -176,26 +203,4 @@ class WebWatchScrapper {
         return arrivalTimes.characters.count > 0 ? arrivalTimes : nil
     }
 
-}
-
-enum WebWatchError: ErrorType {
-    case CannotGetContentsOfURL
-    case InvalidURL
-}
-
-struct WebWatchRoute {
-    var name: String
-    var number: Int
-}
-
-enum WebWatchDirection: Int {
-    case Northbound = 2
-    case Eastbound = 1
-    case Southbound = 3
-    case Westbound = 4
-}
-
-struct WebWatchStop {
-    var name: String
-    var number: Int
 }
