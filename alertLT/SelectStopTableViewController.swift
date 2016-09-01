@@ -15,11 +15,7 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
     var route: BusRoute?
     var managedObjectContex: NSManagedObjectContext?
     
-    @IBOutlet weak var searchBar: UISearchBar! {
-        didSet {
-            searchBar.delegate = self
-        }
-    }
+    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
     
     enum Constants {
         static let StopCellIdentifier = "StopCell"
@@ -30,15 +26,6 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
         super.viewDidLoad()
         initalizeFetchedResultsController()
         checkForNoStopData()
-    }
-    
-    override func viewWillAppear(animated: Bool) {
-        super.viewDidLoad()
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     // MARK: - Table view data source
@@ -54,7 +41,6 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
             stopsRequest.predicate = NSPredicate(format: "ANY routes == %@ AND (actualName CONTAINS[c] %@ OR number.stringValue CONTAINS[c] %@)",route!,  searchString, searchString)
         } else {
             stopsRequest.predicate = NSPredicate(format: "ANY routes == %@", route!)
-
         }
         
         if let context = managedObjectContex {
@@ -72,11 +58,14 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
     
     private func checkForNoStopData() {
         if fetchedResultsController?.sections?[0].numberOfObjects == 0 {
-            let alert = UIAlertController(title: "No Stop Data for this Route", message: "This stop is currently not in service and we do not have any stop information saved. Please try again when this stop is in service.", preferredStyle: .Alert)
-            
-            alert.addAction(UIAlertAction(title: "Okay", style: .Default, handler: { [weak weakSelf = self] (alert: UIAlertAction) in  weakSelf?.navigationController?.popViewControllerAnimated(true)} ))
-            
-            
+            let alert = UIAlertController(title: "No Stop Data for this Route",
+                                          message: "This stop is currently not in service and we do not have any stop information saved. Please try again when this stop is in service.",
+                                          preferredStyle: .Alert
+            )
+            alert.addAction(UIAlertAction(title: "Okay",
+                style: .Default,
+                handler: { [weak weakSelf = self] (alert: UIAlertAction) in  weakSelf?.navigationController?.popViewControllerAnimated(true)} )
+            )
             presentViewController(alert, animated: true, completion: nil )
         }
     }
@@ -114,7 +103,6 @@ class SelectStopTableViewController: FetchedResultsTableViewController, UISearch
             tableView.insertRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
         }
     }
-    
     
     // MARK: - Search Bar Delegate Methods
     

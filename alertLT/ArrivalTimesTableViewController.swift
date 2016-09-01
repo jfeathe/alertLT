@@ -19,51 +19,12 @@ class ArrivalTimesTableViewController: UITableViewController {
     var stop: BusStop? { didSet { fetchArrivalTimes() } }
     var arrivalTimesForEachRoute: [(String?, BusRoute)]? { didSet { tableView.reloadData() } }
     
-    @objc private func fetchArrivalTimes() {
-        
-        var arrivals = [(String?, BusRoute)]()
-        guard let stop = stop, unsortedRoutes = stop.routes?.allObjects as? [BusRoute] else {
-            // TODO: throw somekind of error
-            return
-        }
-        let routes = unsortedRoutes.sort { Int($0.number!) < Int($1.number!) }
-        
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
-            if let wwStop = stop.asWebWatchStop() {
-                
-                for route in routes {
-                    
-                    guard let (wwRoute, wwDirection) = route.asWebWatchRouteAndDirection() else {
-                        // TODO: throw some kind of error
-                        print("Error")
-                        return
-                    }
-                    
-                    do {
-                        arrivals.append( (try WebWatchScrapper.fetchArrivalTimesForRoute(wwRoute, forDirection: wwDirection, forStop: wwStop), route))
-                    } catch WebWatchError.CannotGetContentsOfURL {
-                        print("Error")
-                    } catch {
-                        print("Error")
-                    }
-                }
-            }
-            dispatch_async(dispatch_get_main_queue()) {
-                weakSelf?.arrivalTimesForEachRoute = arrivals
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = "MMM d, h:mm a"
-                weakSelf?.refreshControl?.attributedTitle = NSAttributedString(string: "Last Updated on \(dateFormatter.stringFromDate(NSDate()))")
-                weakSelf?.refreshControl?.endRefreshing()
-                weakSelf?.tableView.backgroundView = nil
-            }
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.tableView?.rowHeight = UITableViewAutomaticDimension
         self.tableView?.estimatedRowHeight = 100
+        
         self.refreshControl = UIRefreshControl()
         self.refreshControl?.backgroundColor = UIColor.verylightGrayColor()
         self.refreshControl?.addTarget(self, action: #selector(ArrivalTimesTableViewController.fetchArrivalTimes), forControlEvents: .ValueChanged)
@@ -73,6 +34,57 @@ class ArrivalTimesTableViewController: UITableViewController {
         loadingLabel.textColor = UIColor.lightGrayColor()
         loadingLabel.textAlignment = .Center
         self.tableView.backgroundView = loadingLabel
+    }
+    
+    @objc private func fetchArrivalTimes() {
+        
+        var arrivals = [(String?, BusRoute)]()
+        guard let stop = stop, unsortedRoutes = stop.routes?.allObjects as? [BusRoute] else {
+            return
+        }
+        let routes = unsortedRoutes.sort { Int($0.number!) < Int($1.number!) }
+        
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) { [weak weakSelf = self] in
+            if let wwStop = stop.asWebWatchStop() {
+                
+                do {
+                    for route in routes {
+                        guard let (wwRoute, wwDirection) = route.asWebWatchRouteAndDirection() else {
+                            return
+                        }
+                        
+                        arrivals.append( (try WebWatchScrapper.fetchArrivalTimesForRoute(wwRoute, forDirection: wwDirection, forStop: wwStop), route))
+                    }
+                } catch WebWatchError.CannotGetContentsOfURL {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        let alert = UIAlertController(title: "No Internet Connection",message: "Please check your connection and try again later", preferredStyle: .Alert)
+                        alert.addAction(UIAlertAction(title: "Okay",
+                            style: .Default,
+                            handler: { [weak weakSelf = self] (alert: UIAlertAction) in  weakSelf?.navigationController?.popViewControllerAnimated(true)} )
+                        )
+                        weakSelf?.presentViewController(alert, animated: true, completion: nil )
+                    }
+                } catch {
+                    dispatch_async(dispatch_get_main_queue()) {
+                        let alert = UIAlertController(title: "An Error has occured", message: "Unable to get LTC data please try again later", preferredStyle: .Alert)
+                        alert.addAction(UIAlertAction(title: "Okay",
+                            style: .Default,
+                            handler: { [weak weakSelf = self] (alert: UIAlertAction) in  weakSelf?.navigationController?.popViewControllerAnimated(true)} )
+                        )
+                        weakSelf?.presentViewController(alert, animated: true, completion: nil )
+                    }
+                }
+            }
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                weakSelf?.arrivalTimesForEachRoute = arrivals
+                let dateFormatter = NSDateFormatter()
+                dateFormatter.dateFormat = "MMM d, h:mm a"
+                weakSelf?.refreshControl?.attributedTitle = NSAttributedString(string: "Last Updated on \(dateFormatter.stringFromDate(NSDate()))")
+                weakSelf?.refreshControl?.endRefreshing()
+                weakSelf?.tableView.backgroundView = nil
+            }
+        }
     }
 
     // MARK: - Table view data source
@@ -92,7 +104,6 @@ class ArrivalTimesTableViewController: UITableViewController {
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(Constants.arrivalCell, forIndexPath: indexPath)
-
         configureCell(cell, forIndexPath: indexPath)
         return cell
     }
@@ -100,7 +111,7 @@ class ArrivalTimesTableViewController: UITableViewController {
     func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
         guard let arrivalTimeCell = cell as? ArrivalTimeTableViewCell,
             arrivalTimesForEachRoute = arrivalTimesForEachRoute?[indexPath.row] else {
-            return
+                return
         }
         
         let (estimatedArrivals, route) = arrivalTimesForEachRoute
@@ -113,8 +124,7 @@ class ArrivalTimesTableViewController: UITableViewController {
         
         if let estimatedArrivals = estimatedArrivals {
             arrivalTimeCell.estimatedArrivalLabel.text = estimatedArrivals
-            if let waitTime = calcWaitTime(estimatedArrivals) {
-                
+            if let waitTime = calcWaitTimeUsing(estimatedArrivals) {
                 arrivalTimeCell.waitTimeLabel.text = waitTime > 0 ? "\(waitTime) min" : "due"
                 switch waitTime {
                 case 0...5 : arrivalTimeCell.waitTimeLabel.textColor = UIColor.darkGreenColor()
@@ -130,7 +140,7 @@ class ArrivalTimesTableViewController: UITableViewController {
         }
     }
     
-    func calcWaitTime(arrivalTimes: String) -> Int? {
+    func calcWaitTimeUsing(arrivalTimes: String) -> Int? {
         guard let calander = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian) else {
             return nil
         }
@@ -155,15 +165,4 @@ class ArrivalTimesTableViewController: UITableViewController {
         }
         return nil
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

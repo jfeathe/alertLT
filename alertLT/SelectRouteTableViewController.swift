@@ -20,25 +20,16 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
     //Outlets and UIElements
     @IBOutlet private weak var cancelBarButton: UIBarButtonItem!
     
-    @IBOutlet weak var searchBar: UISearchBar! {
-        didSet {
-            searchBar.delegate = self
-        }
-    }
+    @IBOutlet weak var searchBar: UISearchBar! { didSet { searchBar.delegate = self } }
     
-    // MARK: Model
+    // MARK: - Model
     var managedObjectContex: NSManagedObjectContext?
     
-    // MARK View Controller Lifecycle
+    // MARK: -  View Controller Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initalizeFetchedResultsController()
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     // MARK: - Table view data source
@@ -79,11 +70,9 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
     }
     
     func configureCell(cell: UITableViewCell, forIndexPath indexPath: NSIndexPath) {
-    
         guard let busInfoCell = cell as? BusInfoTableViewCell, route = fetchedResultsController?.objectAtIndexPath(indexPath) as? BusRoute else {
             return
         }
-        
         if let name = route.name, number = route.number, direction = route.direction {
             busInfoCell.primaryTextLabel.text = String(number)
             busInfoCell.secondaryTextLabel.text = "\(name) - \(direction.substringToIndex(direction.startIndex.successor()))"
@@ -116,10 +105,8 @@ class SelectRouteTableViewController: FetchedResultsTableViewController, UISearc
         }
     }
     
-    
     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == Constants.SelectStopSegueIdentifier {
             if let stopsTVC = segue.destinationViewController.contentViewController as? SelectStopTableViewController,

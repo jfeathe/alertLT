@@ -52,16 +52,13 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
                 item.enabled = false
             }
         }
-        
         if let tabBarItems = tabBarController?.tabBar.items {
             for item in tabBarItems {
                 item.enabled = false
             }
         }
-        
         noFavoriteStopsLabel.hidden = true
         noFavoriteStopsButton.hidden = true
-        
         refreshControl?.attributedTitle = NSAttributedString(string: "Downloading the latest stop information 📡")
         self.refreshControl!.beginRefreshing()
         
@@ -74,19 +71,16 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
                 item.enabled = true
             }
         }
-        
         if let tabBarItems = tabBarController?.tabBar.items {
             for item in tabBarItems {
                 item.enabled = true
             }
         }
-        
         noFavoriteStopsLabel.hidden = false
         noFavoriteStopsButton.hidden = false
         
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "MMM d, h:mm a"
-        
         if let lastUpdate = dbUpdater.lastUpdatedDate {
             refreshControl?.attributedTitle = NSAttributedString(string: "Last Updated on \(dateFormatter.stringFromDate(lastUpdate))")
         } else {
@@ -126,7 +120,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         }
     }
     
-    @objc private func updateManualy() {
+    @objc private func forceUpdate() {
         let dbUpdater = DatabaseUpdater(context: FavoritesTableViewController.managedObjectContex)
         updateDatabaseUsing(dbUpdater)
     }
@@ -146,11 +140,17 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
                 }
                 // TODO: Handel Errors
             } catch WebWatchError.CannotGetContentsOfURL {
-                print(1)
-            } catch WebWatchError.InvalidURL {
-                print(2)
+                dispatch_async(dispatch_get_main_queue()) {
+                    let alert = UIAlertController(title: "No Internet Connection",message: "Please check your connection and try again later", preferredStyle: .Alert)
+                    alert.addAction(UIAlertAction(title: "Okay", style: .Default, handler: nil ))
+                    weakSelf?.presentViewController(alert, animated: true, completion: nil )
+                }
             } catch {
-                print(3)
+                dispatch_async(dispatch_get_main_queue()) {
+                    let alert = UIAlertController(title: "An Error has occured", message: "Unable to get LTC data please try again later", preferredStyle: .Alert)
+                    alert.addAction(UIAlertAction(title: "Okay",style: .Default,handler: nil ))
+                    weakSelf?.presentViewController(alert, animated: true, completion: nil )
+                }
             }
             dispatch_async(dispatch_get_main_queue()) {
                 weakSelf?.hideLoadingMessage(dbUpdater)
@@ -158,7 +158,6 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         }
     }
 
-    
     // MARK: View Controller Lifecycle
     
     override func viewDidLoad() {
@@ -168,18 +167,13 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
         noFavoriteStopsButton.addTarget(self, action: #selector(FavoritesTableViewController.noFavoriteStopsButtonPressed(_:)), forControlEvents: [.TouchUpInside])
         initalizeFetchedResultsController()
         self.refreshControl = UIRefreshControl()
-        self.refreshControl?.addTarget(self, action: #selector(FavoritesTableViewController.updateManualy), forControlEvents: .ValueChanged)
+        self.refreshControl?.addTarget(self, action: #selector(FavoritesTableViewController.forceUpdate), forControlEvents: .ValueChanged)
         self.refreshControl?.backgroundColor = UIColor.verylightGrayColor()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewDidAppear(animated)
         checkForUpdates()
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     // MARK: - Table view data source
@@ -261,9 +255,7 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
             }
             
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+        }
     }
     
     // MARK - Fetched Results Controller Delegate Methods
@@ -285,19 +277,19 @@ class FavoritesTableViewController: FetchedResultsTableViewController {
     
     // MARK: - Navigation
     
-    @IBAction func cancelAddingFavoriteStop(segue:UIStoryboardSegue) {
-    }
-    
     @IBAction func addFavoriteStop(segue: UIStoryboardSegue) {
         _ = try? FavoritesTableViewController.managedObjectContex?.save()
-        
     }
+    
+    @IBAction func cancelAddingFavoriteStop(segue:UIStoryboardSegue) {
+        //If they chancel adding a favorite stop nothing needs to be done.
+    }
+    
     
     @objc private func noFavoriteStopsButtonPressed(sender: UIButton) {
         performSegueWithIdentifier(Constants.SelectRouteSegue, sender: sender)
     }
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == Constants.SelectRouteSegue {
             if let selectRouteTVC = segue.destinationViewController.contentViewController as? SelectRouteTableViewController {
